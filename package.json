@@ -11,10 +11,6 @@
     "bleno": "^0.5.0",
     "death": "^1.1.0",
     "js-yaml": "^3.12.0",
-    "websocket": "^1.0.28",
-    "xpc-connection": "sandeepmistry/node-xpc-connection#pull/26/head"
-  },
-  "resolutions": {
-    "xpc-connection": "sandeepmistry/node-xpc-connection#pull/26/head"
+    "websocket": "^1.0.28"
   }
 }

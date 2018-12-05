@@ -29,12 +29,18 @@ Before you can run this code, you'll need to install a couple different things:
 2. Git https://git-scm.com/downloads
 3. The prerequisites for Bleno must be met too (it's how we control Bluetooth): https://github.com/noble/bleno
 
+## Running On a Raspberry Pi
+
+This software works great on a Raspberry Pi 3b+. Follow all of these steps on your Pi itself, not on
+your laptop or desktop! The easiest way to do this is to plug a monitor, keyboard and mouse in to your
+Pi. Or, if you've set it up, you can `ssh` in to your Pi and follow these steps as well.
+
 ## Getting Started
 
 With the software requirements out of the way, you can run the following commands to get this program, set it up, and run it:
 
 ```bash
-git clone git@github.com:dawsontoth/zwifit.git
+git clone https://github.com/dawsontoth/zwifit.git
 cd zwifit
 npm install
 node app.js
