@@ -69,7 +69,7 @@ function fireEvent(name, data) {
 				toRemove.push(func);
 			}
 			debug && console.log(' - handling ' + keys[i]);
-			if (func.apply(listener, args) === stop) {
+			if (func.apply(listener, args) === exports.stop) {
 				debug && console.log(' - stopped by listener');
 				break;
 			}
