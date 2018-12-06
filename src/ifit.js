@@ -53,23 +53,41 @@ function onConnected(connection) {
 }
 
 function onMessage(message) {
-	let parsed = safeParse(message.utf8Data || message.data);
+	let parsed = safeJSONParse(message.utf8Data || message.data);
 	if (debug) {
-		console.log('iFit: Message received!');
-		console.log(parsed);
+		console.log('iFit:', parsed);
 	}
 	if (parsed.values) {
 		parsed = parsed.values;
 	}
 	if (parsed['MPH'] !== undefined) {
+		let mph = safeParseFloat(parsed['MPH']);
 		events.fire('changeReceived', {
-			speed: parsed['MPH'] < 0.1 ? 0 : parsed['MPH']
+			speed: mph < 0.1 ? 0 : mph
 		});
 	}
 	if (parsed['Actual Incline'] !== undefined) {
 		events.fire('changeReceived', {
-			incline: parsed['Actual Incline']
+			incline: safeParseFloat(parsed['Actual Incline'])
 		});
+	}
+}
+
+function safeJSONParse(string) {
+	try {
+		return JSON.parse(string);
+	}
+	catch (err) {
+		return null;
+	}
+}
+
+function safeParseFloat(val) {
+	try {
+		return parseFloat(val);
+	}
+	catch (err) {
+		return 0;
 	}
 }
 
@@ -80,15 +98,6 @@ function onError(error) {
 function onClose() {
 	connected = false;
 	console.log('iFit Connection Closed');
-}
-
-function safeParse(string) {
-	try {
-		return JSON.parse(string);
-	}
-	catch (err) {
-		return null;
-	}
 }
 
 function cleanUp() {
