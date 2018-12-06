@@ -25,7 +25,7 @@ https://www.amazon.com/CanaKit-Raspberry-Premium-Clear-Supply/dp/B07BC7BMHY/ref=
 
 Before you can run this code, you'll need to install a couple different things:
 
-1. The latest LTS version of NodeJS. I'm presently running `v10.14.1`: https://nodejs.org/en/download/
+1. NodeJS. If you're running on Windows or OS X, get version 8: https://nodejs.org/dist/latest-v8.x/. If you're running this on a Raspberry Pi, get the latest LTS version of NodeJS. I'm presently running `v10.14.1`: https://nodejs.org/en/download/
 2. Git https://git-scm.com/downloads
 3. The prerequisites for Bleno must be met too (it's how we control Bluetooth): https://github.com/noble/bleno
 
