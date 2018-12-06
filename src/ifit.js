@@ -7,7 +7,7 @@ let WebSocketClient = require('websocket').client,
  State.
  */
 let connected = false,
-	debug = false,
+	debug = true,
 	client,
 	ensureConnectedID;
 
