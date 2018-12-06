@@ -77,6 +77,13 @@ pm2 restart all
 pm2 logs
 ```
 
+Or update the code and restart:
+
+```bash
+git pull
+pm2 restart all
+```
+
 ## Calibration
 
 Zwifit will report your treadmill's exact speed, as measured by the machine itself. You can use the calibration
