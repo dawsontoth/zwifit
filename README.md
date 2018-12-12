@@ -23,17 +23,34 @@ https://www.amazon.com/CanaKit-Raspberry-Premium-Clear-Supply/dp/B07BC7BMHY/ref=
 
 ## Software Requirements
 
+### Windows
+
 Before you can run this code, you'll need to install a couple different things:
 
 1. NodeJS, specifically version 8: https://nodejs.org/dist/latest-v8.x/ (The library we use to communicate over Bluetooth doesn't work with the latest versions of NodeJS yet.)
 2. Git https://git-scm.com/downloads
-3. The prerequisites for Bleno must be met too (it's how we control Bluetooth): https://github.com/noble/bleno
+3. To install node-gyp, after installing NodeJS, open a command prompt with "Run as administrator", and run the following: `npm install --global --production windows-build-tools`
+3. You'll need a compatible bluetooth adapter as well; follow the steps here: https://github.com/noble/node-bluetooth-hci-socket#windows
 
-## Running On a Raspberry Pi
+### Mac OS X
 
-This software works great on a Raspberry Pi 3b+. Follow all of these steps on your Pi itself, not on
+Before you can run this code, you'll need to install a couple different things:
+
+1. NodeJS, specifically version 8: https://nodejs.org/dist/latest-v8.x/ (The library we use to communicate over Bluetooth doesn't work with the latest versions of NodeJS yet.)
+2. Git: https://git-scm.com/downloads
+3. Xcode: https://developer.apple.com/xcode/
+
+### Raspbian (Raspberry Pi)
+
+This software works great on a **Raspberry Pi 3b+** or a **Zero W**. Follow all of these steps on your Pi itself, not on
 your laptop or desktop! The easiest way to do this is to plug a monitor, keyboard and mouse in to your
-Pi. Or, if you've set it up, you can `ssh` in to your Pi and follow these steps as well.
+Pi. Or, if you've set up SSH, you can `ssh` in to your Pi to follow these steps (hint: this option is in the configuration UI).
+
+1. `sudo apt-get update`
+2. Install the dependencies we need: `sudo apt-get install nodejs npm git bluetooth bluez libbluetooth-dev libudev-dev`
+3. Turn off the system Bluetooth daemon so we can control it: `sudo systemctl disable bluetooth` (to reverse this, change `disable` to `enable`)
+4. Turn the Bluetooth chip back on: `sudo hciconfig hci0 up`
+5. Give NodeJS access to Bluetooth without sudo: ```sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)```
 
 ## Getting Started
 
