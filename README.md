@@ -27,7 +27,7 @@ https://www.amazon.com/CanaKit-Raspberry-Premium-Clear-Supply/dp/B07BC7BMHY/ref=
 
 Before you can run this code, you'll need to install a couple different things:
 
-1. NodeJS, specifically version 8: https://nodejs.org/dist/latest-v8.x/ (The library we use to communicate over Bluetooth doesn't work with the latest versions of NodeJS yet.)
+1. NodeJS, specifically version 8: https://nodejs.org/dist/latest-v8.x/node-v8.14.0-x64.msi (The library we use to communicate over Bluetooth doesn't work with the latest versions of NodeJS yet.)
 2. Git https://git-scm.com/downloads
 3. To install node-gyp, after installing NodeJS, open a command prompt with "Run as administrator", and run the following: `npm install --global --production windows-build-tools`
 3. You'll need a compatible bluetooth adapter as well; follow the steps here: https://github.com/noble/node-bluetooth-hci-socket#windows
@@ -36,7 +36,7 @@ Before you can run this code, you'll need to install a couple different things:
 
 Before you can run this code, you'll need to install a couple different things:
 
-1. NodeJS, specifically version 8: https://nodejs.org/dist/latest-v8.x/ (The library we use to communicate over Bluetooth doesn't work with the latest versions of NodeJS yet.)
+1. NodeJS, specifically version 8: https://nodejs.org/dist/latest-v8.x/node-v8.14.0.pkg (The library we use to communicate over Bluetooth doesn't work with the latest versions of NodeJS yet.)
 2. Git: https://git-scm.com/downloads
 3. Xcode: https://developer.apple.com/xcode/
 
