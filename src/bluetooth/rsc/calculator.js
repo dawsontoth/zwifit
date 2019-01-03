@@ -6,13 +6,13 @@ let secondsPerMinute = 60;
 
 exports.calculateBuffer = calculateBuffer;
 
-// console.log(calculateBuffer({ mph: 6, cadence: 172 }).toString('hex'));
+// console.log(calculateBuffer({ kph: 9.65, cadence: 172 }).toString('hex'));
 
 function calculateBuffer(args) {
-	let mph = args.mph,
+	let kph = args.kph,
 		cadence = args.cadence;
 
-	let metersPerSecond = mph ? mph / secondsPerHour * metersPerMile : 0,
+	let metersPerSecond = kph ? kph * 1000 / secondsPerHour : 0,
 		metersPerMinute = metersPerSecond * secondsPerMinute,
 		metersPerSecondRounded = Math.round(metersPerSecond * 256),
 		stepsPerMinute = Math.round(cadence),
@@ -21,7 +21,7 @@ function calculateBuffer(args) {
 		flags = {
 			InstantaneousStrideLengthPresent: false,
 			TotalDistancePresent: false,
-			WalkingOrRunningStatusBits: mph >= 5,
+			WalkingOrRunningStatusBits: kph >= 8,
 			ReservedForFutureUse1: false,
 			ReservedForFutureUse2: false,
 			ReservedForFutureUse3: false,

@@ -1,0 +1,36 @@
+<form>
+	<div class="form-group">
+		<label for="ipAddress">
+			IP Address
+			<span class="text-muted">
+				(Connected: <strong>{{ websocket.current.ifit.connected ? 'Yes' : 'No' }}</strong>)</span>
+		</label>
+		<input [(ngModel)]="websocket.settings.ip" name="ip" aria-describedby="ipHelp" class="form-control" id="ipAddress"
+		       placeholder="Enter IFit IP Address" type="text" (ngModelChange)="saveChanges()">
+		<small class="form-text text-muted" id="ipHelp">
+			What&rsquo;s the IP address of your IFit treadmill? I recommend reserving this
+			address in your router&rsquo;s settings so you don&rsquo;t have to chain this very often!
+		</small>
+	</div>
+	<div class="form-group">
+		<label>
+			Units
+		</label>
+		<div class="form-check">
+			<label class="form-check-label" for="miles">
+				<input [(ngModel)]="unit" class="form-check-input" id="miles" name="units" type="radio" value="miles">
+				Miles</label>
+		</div>
+		<div class="form-check">
+			<label class="form-check-label" for="kilometers">
+				<input [(ngModel)]="unit" class="form-check-input" id="kilometers" name="units" type="radio" value="kilometers">
+				Kilometers</label>
+		</div>
+		<small class="form-text text-muted" id="unitsHelp">
+			What unit of measurement would you like to use?
+		</small>
+	</div>
+	<div *ngIf="changesSaved" class="alert">
+		Your changes have been saved!
+	</div>
+</form>

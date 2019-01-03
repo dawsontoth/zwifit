@@ -3,8 +3,10 @@ let bleno = require('bleno'),
 	onDeath = require('death'),
 	constants = require('../constants'),
 	events = require('../lib/events'),
-	rscService = new (require('./rsc/service'))(),
-	rscCalculator = require('./rsc/calculator'),
+	utils = require('../lib/utils'),
+	// Note: RSC service is turned off as we don't have a source for cadence at the moment.
+	// rscService = new (require('./rsc/service'))(),
+	// rscCalculator = require('./rsc/calculator'),
 	treadmillService = new (require('./treadmill/service'))(),
 	treadmillCalculator = require('./treadmill/calculator');
 
@@ -12,26 +14,38 @@ let bleno = require('bleno'),
  State.
  */
 let updateFPS = 5,
+	lastTrackedAt = null,
+	idle = true,
+	idleSecondsCount = 0,
 	current = {
+		time: 0,
+		hr: 0,
+		miles: 0,
+		kilometers: 0,
 		mph: 0,
+		kph: 0,
 		incline: 0,
 		cadence: 0
 	},
 	ramps = {
+		hr: 0,
 		mph: 0,
+		kph: 0,
 		incline: 0,
 		cadence: 0
 	},
 	services = [
-		rscService,
+		// rscService,
 		treadmillService
 	],
 	serviceUUIDs = services.map(s => s.uuid),
 	updateID;
 
+
 /*
  Public API.
  */
+exports.current = current;
 exports.start = start;
 
 /*
@@ -67,8 +81,16 @@ function onAdvertisingStarted(error) {
 }
 
 function onChangeReceived(data) {
-	if (data.speed !== undefined) {
-		current.mph = data.speed;
+	if (data.hr !== undefined) {
+		current.hr = data.hr;
+	}
+	if (data.mph !== undefined) {
+		current.mph = data.mph;
+		current.kph = data.mph * 1.609344;
+	}
+	if (data.kph !== undefined) {
+		current.mph = data.kph / 1.609344;
+		current.kph = data.kph;
 	}
 	if (data.cadence !== undefined) {
 		current.cadence = data.cadence;
@@ -79,22 +101,51 @@ function onChangeReceived(data) {
 }
 
 function emitUpdates() {
-	let mph = rampCurrentValue('mph'),
+	calculateTimeAndDistance();
+	rampCurrentValue('mph');
+	let kph = rampCurrentValue('kph'),
+		hr = rampCurrentValue('hr'),
 		cadence = rampCurrentValue('cadence'),
 		incline = rampCurrentValue('incline');
-	if (rscService.measurement.updateValueCallback) {
-		rscService.measurement.updateValueCallback(rscCalculator.calculateBuffer({
-			mph,
-			cadence
-		}));
-	}
+	// if (rscService.measurement.updateValueCallback) {
+	// 	rscService.measurement.updateValueCallback(rscCalculator.calculateBuffer({
+	// 		kph,
+	// 		cadence
+	// 	}));
+	// }
 	if (treadmillService.measurement.updateValueCallback) {
 		treadmillService.measurement.updateValueCallback(treadmillCalculator.calculateBuffer({
-			mph,
-			incline
+			kph: kph,
+			hr: hr,
+			incline: incline
 		}));
 	}
 }
+
+function calculateTimeAndDistance() {
+	if (lastTrackedAt && current.mph > 0) {
+		if (idle) {
+			idle = false;
+			idleSecondsCount = 0;
+			current.miles = 0;
+			current.kilometers = 0;
+			current.time = 0;
+		}
+		let elapsedSeconds = utils.convertElapsedToSeconds(process.hrtime(lastTrackedAt));
+		current.time += elapsedSeconds;
+		current.miles += current.mph / 3600 * elapsedSeconds;
+		current.kilometers = current.miles * 1.609344;
+	}
+	else if (!idle && current.mph <= 0) {
+		idleSecondsCount += 1;
+		if (idleSecondsCount >= 60 * 60) { // one hour
+			idle = true;
+			idleSecondsCount = 0;
+		}
+	}
+	lastTrackedAt = process.hrtime();
+}
+
 
 function rampCurrentValue(key) {
 	let currentValue = current[key],

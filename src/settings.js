@@ -6,9 +6,12 @@ let yaml = require('js-yaml'),
  Public API.
  */
 exports.version = 1;
+exports.metric = false;
 exports.ip = null;
 
 exports.load = load;
+exports.toJSON = toJSON;
+exports.fromJSON = fromJSON;
 exports.save = save;
 
 /*
@@ -33,11 +36,7 @@ function load() {
 				settings = null;
 			}
 			else {
-				for (let key in settings) {
-					if (settings.hasOwnProperty(key)) {
-						exports[key] = settings[key];
-					}
-				}
+				fromJSON(settings);
 			}
 		}
 		return !!settings;
@@ -47,12 +46,24 @@ function load() {
 	}
 }
 
-function save() {
+function toJSON() {
 	let settings = {};
 	for (let key in exports) {
-		if (exports.hasOwnProperty(key) && key !== 'load' && key !== 'save') {
+		if (exports.hasOwnProperty(key) && typeof exports[key] !== 'function') {
 			settings[key] = exports[key];
 		}
 	}
-	fs.writeFileSync(ref, yaml.safeDump(settings), 'UTF-8');
+	return settings;
+}
+
+function fromJSON(json) {
+	for (let key in json) {
+		if (json.hasOwnProperty(key)) {
+			exports[key] = json[key];
+		}
+	}
+}
+
+function save() {
+	fs.writeFile(ref, yaml.safeDump(toJSON()), 'UTF-8', () => {});
 }

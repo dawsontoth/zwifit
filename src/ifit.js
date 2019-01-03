@@ -6,15 +6,17 @@ let WebSocketClient = require('websocket').client,
 /*
  State.
  */
-let connected = false,
-	debug = false,
+let debug = false,
+	current = {},
 	client,
+	lastConnection,
 	ensureConnectedID;
 
 /*
  Public API.
  */
 exports.connect = connect;
+exports.current = current;
 
 /*
  Implementation.
@@ -24,32 +26,54 @@ function connect() {
 	client = new WebSocketClient();
 	client.on('connectFailed', onConnectFailed);
 	client.on('connect', onConnected);
-	ensureConnectedID = setInterval(ensureConnected, 5000);
+	events.on('controlRequested', controlRequested);
+	ensureConnectedID = setInterval(ensureConnected, 10 * 1000);
 	ensureConnected();
 	onDeath(cleanUp);
 }
 
 function ensureConnected() {
-	if (!connected) {
+	if (!current.connected && settings.ip) {
 		console.log('iFit: Connecting...');
 		client.connect(`ws://${settings.ip}/control`);
 	}
 }
 
 function onConnectFailed(error) {
-	connected = false;
+	current.connected = false;
 	console.log('iFit: Connect Error: ' + error.toString());
 }
 
 function onConnected(connection) {
 	console.log('iFit: Connected!');
-	connected = true;
+	current.connected = true;
+	lastConnection = connection;
 	connection.on('message', onMessage);
 	connection.on('error', onError);
 	connection.on('close', onClose);
-	// TODO: Once we can read incline (and speed) from... you know who... we can control the treadmill!
-	// connection.sendUTF(JSON.stringify({ 'Actual Incline': 3 }));
-	// connection.sendUTF(JSON.stringify({ 'MPH': 6 }));
+}
+
+function controlRequested(message) {
+	if (!lastConnection) {
+		return;
+	}
+	let control = {
+		type: 'set',
+		values: {}
+	};
+	if (message.mph !== undefined) {
+		control.values['MPH'] = String(message.mph);
+	}
+	if (message.kph !== undefined) {
+		control.values['KPH'] = String(message.kph);
+	}
+	if (message.incline !== undefined) {
+		control.values['Incline'] = String(message.incline);
+	}
+	if (Object.keys(control.values).length > 0) {
+		lastConnection.sendUTF(JSON.stringify(control));
+	}
+
 }
 
 function onMessage(message) {
@@ -57,19 +81,29 @@ function onMessage(message) {
 	if (debug) {
 		console.log('iFit:', parsed);
 	}
+	// TODO: Also parse out the distance traveled so we don't have to calculate it?
 	if (parsed.values) {
 		parsed = parsed.values;
 	}
-	if (parsed['MPH'] !== undefined) {
-		let mph = safeParseFloat(parsed['MPH']);
-		events.fire('changeReceived', {
-			speed: mph < 0.1 ? 0 : mph
-		});
+	for (let parsedKey in parsed) {
+		if (parsed.hasOwnProperty(parsedKey)) {
+			current[parsedKey] = parsed[parsedKey];
+		}
 	}
-	if (parsed['Actual Incline'] !== undefined) {
-		events.fire('changeReceived', {
-			incline: safeParseFloat(parsed['Actual Incline'])
-		});
+	let changes = {},
+		speedStoredIn = settings.metric ? 'KPH' : 'MPH';
+	if (parsed[speedStoredIn] !== undefined) {
+		let speed = safeParseFloat(parsed[speedStoredIn]);
+		changes[speedStoredIn.toLowerCase()] = speed < 0.1 ? 0 : speed;
+	}
+	if (parsed['Incline'] !== undefined) {
+		changes['incline'] = safeParseFloat(parsed['Incline']);
+	}
+	if (parsed['Chest Pulse'] !== undefined) {
+		changes['hr'] = safeParseFloat(parsed['Chest Pulse']);
+	}
+	if (Object.keys(changes).length) {
+		events.fire('changeReceived', changes);
 	}
 }
 
@@ -96,7 +130,7 @@ function onError(error) {
 }
 
 function onClose() {
-	connected = false;
+	current.connected = false;
 	console.log('iFit Connection Closed');
 }
 

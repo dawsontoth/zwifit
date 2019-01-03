@@ -1,0 +1,44 @@
+<table class="table table-dark">
+	<thead>
+	<tr>
+		<th scope="col">Name</th>
+		<th scope="col">Length</th>
+		<th scope="col">Actions</th>
+	</tr>
+	</thead>
+	<tbody *ngIf="routes?.length === 0">
+	<tr>
+		<td colspan="3">
+			No routes have been added yet!
+		</td>
+	</tr>
+	</tbody>
+	<tbody *ngIf="routes?.length">
+	<tr *ngFor="let route of routes">
+		<td>{{ route.name }}</td>
+		<td>{{ route.length }}</td>
+		<td>
+			<i class="fas fa-trash"></i>
+			<span class="text-muted">&middot;</span>
+			<button *ngIf="!route.playing"
+			        type="button"
+			        (click)="route.togglePlaying()">
+				<i class="fas fa-play"></i>
+				<span class="sr-only">Play {{ route.name }}</span>
+			</button>
+			<button *ngIf="route.playing"
+			        type="button"
+			        (click)="route.togglePlaying()">
+				<i class="fas fa-stop"></i>
+				<span class="sr-only">Stop {{ route.name }}</span>
+			</button>
+		</td>
+	</tr>
+	</tbody>
+</table>
+
+<div class="text-center">
+	<button routerLink="/routes/form" type="button" class="btn btn-success">
+		Add a New Route
+	</button>
+</div>

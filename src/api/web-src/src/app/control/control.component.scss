@@ -1,0 +1,45 @@
+:host {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.button-adjust {
+	flex: initial;
+	width: 60px;
+	font-size: 4em;
+}
+
+.buttons {
+	flex: 1;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	font-size: 7vmin;
+}
+
+.button-go {
+	grid-column: 2 / span 2;
+}
+
+button {
+	background: none;
+	border: 2px solid transparent;
+	cursor: pointer;
+
+	color: #fff;
+	outline: none;
+
+	&:hover {
+		color: #ccc;
+	}
+
+	&:focus {
+		color: #00db00;
+		border-color: #0f0;
+	}
+}

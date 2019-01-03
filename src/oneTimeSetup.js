@@ -25,25 +25,43 @@ async function setup(ready) {
 		ready();
 	}
 	else {
-		readSettings();
+		await readSettings();
 	}
 
-	function readSettings() {
+	async function readSettings() {
 		readlineInterface = readline.createInterface({
 			input: process.stdin,
 			output: process.stdout
 		});
 
-		// In the future, we can ask for more.
-		question('What is the IP of your treadmill?').then(ip => {
-			readlineInterface.close();
-			settings.ip = ip;
-			settings.save();
-			ready();
-		});
+		settings.ip = await question('What is the IP of your treadmill?');
+		settings.metric = isYes(await question('Do you want to use metric units (KPH)? (Answer Y or N)'));
+
+		readlineInterface.close();
+		settings.save();
+		ready();
 	}
 }
 
 function question(q) {
 	return new Promise(resolve => readlineInterface.question(q + ' ', resolve));
+}
+
+function isYes(val) {
+	if (val) {
+		val = val.toLowerCase().trim();
+	}
+	return !!val
+		&& (val === '1'
+			|| val === '!'
+			|| val === 'y'
+			|| val === 'ye'
+			|| val === 'yes'
+			|| val === 'yess'
+			|| val === 'please'
+			|| val === 'yes please'
+			|| val === 'yesplease'
+			|| val === 'si'
+			|| val === 'oui'
+			|| val === 'ja');
 }

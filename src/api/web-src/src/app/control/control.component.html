@@ -1,0 +1,16 @@
+<button (click)="adjust(-0.1)" class="button-adjust" type="button">
+	-
+</button>
+<div class="buttons">
+	<button *ngFor="let button of buttons"
+	        [ngClass]="'button button-' + button.toLowerCase()"
+	        (click)="clicked(button)"
+	        type="button">
+		{{ button }}
+		<span *ngIf="button === 'Go' && entry !== null">
+			{{ entry | number }}{{ unit }}
+		</span></button>
+</div>
+<button (click)="adjust(0.1)" class="button-adjust" type="button">
+	+
+</button>

@@ -5,6 +5,8 @@ let convertBase = require('./convertBase');
  */
 exports.bufferHelper = bufferHelper;
 exports.convertFlags = convertFlags;
+exports.convertElapsedToNanoseconds = convertElapsedToNanoseconds;
+exports.convertElapsedToSeconds = convertElapsedToSeconds;
 
 /*
  Implementation.
@@ -62,4 +64,12 @@ function convertFlags(flags) {
 				.reverse()
 				.join('')
 		);
+}
+
+function convertElapsedToNanoseconds(elapsed) {
+	return elapsed[0] * 1e9 + elapsed[1];
+}
+
+function convertElapsedToSeconds(elapsed) {
+	return convertElapsedToNanoseconds(elapsed) / 1e9;
 }

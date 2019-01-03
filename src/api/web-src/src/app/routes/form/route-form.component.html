@@ -1,0 +1,34 @@
+<form>
+	<div class="alert text-danger">
+		WARNING: This hasn&rsquo;t been fully implemented yet! It&rsquo;s a partial idea.
+	</div>
+	<div class="form-group">
+		<label for="routeName">Route Name</label>
+		<input class="form-control" id="routeName" name="routeName" required type="text">
+	</div>
+	<div class="form-group">
+		<label for="routeName">Steps</label>
+		<textarea required aria-describedby="stepsHelp" class="form-control"
+		          [(ngModel)]="route.steps"
+		          id="steps" name="steps" [attr.rows]="stepLines"></textarea>
+		<small class="form-text text-muted" id="stepsHelp">
+			Enter the discrete steps that make up the route, one per line. Each step can be
+			based on the current run&rsquo;s distance or time. Enter the distance, a colon,
+			then what should happen. Multiple actions can be taken, simply comma separate them.
+			Time should be formatted as <em>HH:MM:SS</em>. Speeds can be in MPH or KPH.
+			<br/><em>1 Mile: 1% Incline</em>
+			<br/><em>2.6 Miles: 6.2 MPH</em>
+			<br/><em>0:30:00: 10% Incline</em>
+			<br/><em>5 Miles: 2% Incline, 4 MPH</em>
+		</small>
+	</div>
+	<div class="btn-group">
+		<button disabled type="button" class="btn btn-success" (click)="saveChanges()">
+			Save Changes
+		</button>
+		<button type="button" class="btn btn-danger" (click)="toggleRecording()"
+		        [class.blinking]="stepRecorder.recording">
+			{{ stepRecorder.recording ? 'Stop' : 'Start' }} Recording Steps
+		</button>
+	</div>
+</form>

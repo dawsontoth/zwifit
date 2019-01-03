@@ -1,22 +1,19 @@
 let utils = require('../../lib/utils');
 
-let metersPerMile = 1609.344,
-	metersPerKilometer = 1000,
-	secondsPerHour = 3600;
-
 exports.calculateBuffer = calculateBuffer;
 
 // console.log((calculateBuffer({
-// 	mph: 6,
-// 	incline: 3
+//  kph: 9.65,
+//  hr: 180,
+//  incline: 3
 // }).toString('hex')));
 
 function calculateBuffer(args) {
-	let mph = args.mph,
+	let kph = args.kph,
+		hr = args.hr,
 		incline = args.incline;
 
-	let metersPerSecond = mph ? mph / secondsPerHour * metersPerMile : 0,
-		kilometersPerHour = metersPerSecond ? metersPerSecond / metersPerKilometer * secondsPerHour : 0,
+	let kilometersPerHour = kph,
 		kilometersPerHourRounded = Math.round(kilometersPerHour * 100),
 		inclineRounded = Math.round(incline * 10),
 		degrees = incline ? (Math.atan(incline / 100) * 180 / Math.PI) : 0,
@@ -30,7 +27,7 @@ function calculateBuffer(args) {
 			InstantaneousPacePresent: false,
 			AveragePacePresent: false,
 			ExpendedEnergyPresent: false,
-			HeartRatePresent: false,
+			HeartRatePresent: !!hr,
 			MetabolicEquivalentPresent: false,
 			ElapsedTimePresent: false,
 			RemainingTimePresent: false,
@@ -40,11 +37,16 @@ function calculateBuffer(args) {
 			ReservedForFutureUse3: false
 		};
 
-	return utils
+	let buffer = utils
 		.bufferHelper()
 		.write(16, utils.convertFlags(flags))
 		.write(16, kilometersPerHourRounded)
 		.write(16, inclineRounded, true)
-		.write(16, degreesRounded, true)
-		.finish();
+		.write(16, degreesRounded, true);
+
+	if (hr) {
+		buffer.write(8, hr);
+	}
+
+	return buffer.finish();
 }
