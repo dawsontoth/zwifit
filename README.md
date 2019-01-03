@@ -1,6 +1,6 @@
 # Zwifit
 
-Welcome to the cryptically named Zwifit! This NodeJS app joins Zwift with treadmills running iFit®.
+Welcome to the cryptically named Zwifit! This NodeJS app joins Zwift with treadmills running iFit® with Wi-Fi.
 
 **Disclaimer:** I'm not associated with either company. Their trademarks and content are their own.
 Heck, they might force me to take this down! But let's enjoy the *run* before they do.
@@ -13,7 +13,7 @@ understand.
 
 ## Minimum Requirements
 
-1. A Wi-Fi connected iFit® treadmill
+1. A Wi-Fi connected iFit® treadmill; those treadmills that use Bluetooth instead of Wi-Fi likely will *not* work
 2. Zwift running on your favorite device
 3. A Raspberry Pi ZeroW or 3B running this software (this software works on versions of Mac OS X before Mojave, but our Bluetooth dependency is presently borked on Mojave -- Windows requires an external Bluetooth LE dongle be properly configured).
 4. Know the IP address of your treadmill. (I recommend reserving this IP in your router so it doesn't change.)
