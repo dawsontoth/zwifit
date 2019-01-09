@@ -8,6 +8,8 @@ let yaml = require('js-yaml'),
 exports.version = 1;
 exports.metric = false;
 exports.ip = null;
+exports.speedOffset = 0;
+exports.speedMultiplier = 1;
 
 exports.load = load;
 exports.toJSON = toJSON;

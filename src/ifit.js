@@ -94,7 +94,18 @@ function onMessage(message) {
 		speedStoredIn = settings.metric ? 'KPH' : 'MPH';
 	if (parsed[speedStoredIn] !== undefined) {
 		let speed = safeParseFloat(parsed[speedStoredIn]);
-		changes[speedStoredIn.toLowerCase()] = speed < 0.1 ? 0 : speed;
+		if (speed < 0.1) {
+			speed = 0;
+		}
+		else {
+			if (settings.speedOffset) {
+				speed += settings.speedOffset;
+			}
+			if (settings.speedMultiplier) {
+				speed *= settings.speedMultiplier;
+			}
+		}
+		changes[speedStoredIn.toLowerCase()] = speed;
 	}
 	if (parsed['Incline'] !== undefined) {
 		changes['incline'] = safeParseFloat(parsed['Incline']);
