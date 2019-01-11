@@ -74,6 +74,8 @@ edit settings.conf (or delete it and run `node app.js` again).
 Do you want this script to run in the background, even when you restart your computer? There are many
 ways to accomplish this. Personally, I use a program called PM2.
 
+_NOTE: To install this program globally, you can prefix `sudo ` before the `npm install` line below, but it would be far wiser to tweak your installation of NPM so that `sudo` isn't required! Follow the steps in the following article, and you'll be doing your system a favor! https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally You only need to do this once._
+
 Run the following to set everything up:
 
 ```bash
