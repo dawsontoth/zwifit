@@ -11,6 +11,14 @@ This software connects to your iFit® treadmill over Wi-Fi to observe its speed 
 broadcasts that information over Bluetooth in a standard protocol that apps like Zwift are able to
 understand.
 
+## What Treadmills Are Compatible?
+
+At the moment it seems hit or miss on which iFit treadmills with Wi-Fi work, but we are building a spreadsheet
+over at the following URL. Look through that. You may also be interested in the TreadSync app, which has a similar
+goal to this project, but runs in a slightly different way (on iOS devices).
+
+http://bit.ly/TS-compat
+
 ## Minimum Requirements
 
 1. A Wi-Fi connected iFit® treadmill; those treadmills that use Bluetooth instead of Wi-Fi likely will *not* work
