@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -21,6 +22,7 @@ export class ControlComponent implements OnInit, OnDestroy {
 	public metric:string;
 	private rawEntry:string = '';
 	private params:Subscription;
+	private decimalPipe = new DecimalPipe('en-US');
 
 	constructor(private route:ActivatedRoute,
 				private router:Router,
@@ -46,18 +48,29 @@ export class ControlComponent implements OnInit, OnDestroy {
 		});
 	}
 
+	public get currentValue() {
+		if (!this.websocket
+			|| !this.websocket.current
+			|| !this.websocket.current.bluetooth) {
+			return null;
+		}
+		switch (this.metric) {
+			case 'speed':
+				return this.decimalPipe.transform(this.websocket.settings.metric
+					? this.websocket.current.bluetooth.kph
+					: this.websocket.current.bluetooth.mph, '1.1-1');
+			case 'incline':
+				return this.decimalPipe.transform(this.websocket.current.bluetooth.incline, '1.1-1');
+			case 'cadence':
+				return this.decimalPipe.transform(this.websocket.current.bluetooth.cadence, '1.0-0');
+			default:
+				return null;
+		}
+	}
+
 	@HostListener('window:keydown', ['$event'])
 	private handleKeyDown(evt:any) {
 		switch (evt.key) {
-			case 's':
-				this.router.navigate(['/control/speed']);
-				break;
-			case 'i':
-				this.router.navigate(['/control/incline']);
-				break;
-			case 'c':
-				this.router.navigate(['/control/cadence']);
-				break;
 			case 'ArrowUp':
 			case 'ArrowRight':
 				this.adjust(0.1);
@@ -121,13 +134,16 @@ export class ControlComponent implements OnInit, OnDestroy {
 	}
 
 	public clicked(button:string) {
+		let goHome = false;
 		switch (button) {
 			case 'Cancel':
+				goHome = true;
 				this.rawEntry = '';
 				break;
 			case 'Go':
+				goHome = true;
 				if (this.entry === null) {
-					return;
+					break;
 				}
 				let data = {};
 				switch (this.metric) {
@@ -156,6 +172,9 @@ export class ControlComponent implements OnInit, OnDestroy {
 			if (isNaN(this.entry)) {
 				this.entry = null;
 			}
+		}
+		if (goHome) {
+			this.router.navigate(['/']);
 		}
 	}
 }

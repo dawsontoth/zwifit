@@ -1,9 +1,133 @@
-p,
-pre {
-	padding: 6px 12px;
+:host {
+	display: flex;
+	flex-direction: row;
+	height: 100%;
+	padding: 20px;
 }
 
-pre {
+.positive {
+	color: #00ff00;
+}
+
+.negative {
+	color: red;
+}
+
+.toggle-full-screen {
+	position: absolute;
+	top: 0;
+	right: 0;
+	background: #000;
 	color: #fff;
-	opacity: 0.5;
+	border: none;
+	cursor: pointer;
+	&:hover {
+		background: #222;
+		color: #ddd;
+	}
+}
+
+.status {
+	flex: initial;
+	width: 160px;
+	margin-right: 10px;
+	font-size: 1.5em;
+
+	dl {
+		display: grid;
+		grid-template: auto / 1.5em 1fr;
+	}
+
+	dt {
+		grid-column: 1;
+	}
+
+	dd {
+		grid-column: 2;
+	}
+
+	dt,
+	dd {
+		margin: 0;
+		padding: .3em .5em;
+	}
+}
+
+[routerlink]:hover {
+	background: #333;
+	cursor: pointer;
+}
+
+.state {
+	flex: 1;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-template-rows: 2fr 1fr;
+	grid-template-areas: 'top top' 'left right';
+
+	.speed {
+		grid-area: top;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+
+		.amount {
+			flex: 4;
+			font-size: 25vw;
+			text-align: right;
+		}
+
+		.unit {
+			flex: 1;
+			writing-mode: vertical-rl;
+			text-orientation: mixed;
+			font-size: 8vw;
+		}
+	}
+
+	.incline {
+		grid-area: left;
+		display: flex;
+		flex-direction: row;
+		align-items: flex-start;
+
+		.amount {
+			flex: 4;
+			font-size: 14vw;
+			text-align: right;
+			line-height: 40px;
+		}
+
+		.unit {
+			flex: 1;
+			text-align: left;
+			font-size: 3vw;
+		}
+	}
+
+	.cadence {
+		grid-area: right;
+		display: flex;
+		flex-direction: row;
+		align-items: flex-start;
+
+		.amount {
+			flex: 4;
+			font-size: 14vw;
+			text-align: right;
+			line-height: 40px;
+		}
+
+		.unit {
+			flex: 1;
+			text-align: left;
+			writing-mode: vertical-rl;
+			text-orientation: mixed;
+			font-size: 3vw;
+		}
+	}
+
+	.unit {
+		opacity: 0.5;
+	}
 }

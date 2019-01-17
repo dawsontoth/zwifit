@@ -1,38 +1,3 @@
-<header>
-	<a [routerLinkActiveOptions]="{ exact: true }" class="main-logo" routerLink="/" routerLinkActive="activeLink">
-		Zwifit
-	</a>
-	<a routerLink="/routes" routerLinkActive="activeLink"
-	   [class.blinking]="stepRecorder.recording">
-		<i class="fas fa-route"></i>
-		Routes
-	</a>
-	<a routerLink="/settings" routerLinkActive="activeLink">
-		<i class="fas fa-cog"></i>
-		Settings
-	</a>
-	<button (click)="toggleFullScreen()" type="button">
-		<i [ngClass]="'fas fa-' + (isFullScreen ? 'compress' : 'expand') + '-arrows-alt'"></i>
-		{{ isFullScreen ? 'Close' : 'Expand' }}
-	</button>
-</header>
 <div class="router-outlet">
 	<router-outlet></router-outlet>
 </div>
-<footer>
-	<a routerLink="/control/speed" routerLinkActive="activeLink">
-		<i class="fas fa-tachometer"></i>
-		Speed
-		<span class="status-display">
-			{{ ((websocket.settings.metric ? websocket.current.bluetooth.kph : websocket.current.bluetooth.mph) || 0) | number }}
-			{{ websocket.settings.metric ? 'KPH' : 'MPH' }}</span>
-	</a>
-	<a routerLink="/control/incline" routerLinkActive="activeLink">
-		<i class="fas fa-analytics"></i>
-		Incline
-		<span class="status-display">{{ (websocket.current.bluetooth.incline || 0) | number }}%</span></a>
-	<a routerLink="/control/cadence" routerLinkActive="activeLink">
-		<i class="fas fa-shoe-prints"></i>
-		Cadence
-		<span class="status-display">{{ (websocket.current.bluetooth.cadence || 0) | number }} SPM</span></a>
-</footer>

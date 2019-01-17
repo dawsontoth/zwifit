@@ -2,11 +2,14 @@ html, body {
 	height: 100%;
 	margin: 0;
 	padding: 0;
-	background: #13004f;
 }
 
 body {
+	background: url('assets/metal-texture-1544288.jpg') no-repeat center center;
+	background-size: cover;
+	background-attachment: fixed;
 	font-family: 'Source Sans Pro', sans-serif;
+	text-shadow: 1px 1px 2px #000000;
 }
 
 form {

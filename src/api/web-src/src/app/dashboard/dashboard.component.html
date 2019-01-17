@@ -1,4 +1,46 @@
-<p>
-	Welcome to Zwifit! I&rsquo;ll put something more interesting here soon...
-</p>
-<pre>{{ websocket.current | json }}</pre>
+<button class="toggle-full-screen" (click)="toggleFullScreen()" type="button">
+	<i [ngClass]="'fas fa-' + (isFullScreen ? 'compress' : 'expand') + '-arrows-alt'"></i>
+	{{ isFullScreen ? 'Close' : 'Expand' }}
+</button>
+
+<div class="status">
+	<dl>
+		<dt>
+			<i [ngClass]="websocket.current?.ifit?.connected ? 'fas fa-check-circle positive' : 'far fa-circle negative'"></i></dt>
+		<dd>IFit</dd>
+
+		<dt>
+			<i [ngClass]="websocket.current?.bluetooth?.clients?.length ? 'fas fa-check-circle positive' : 'far fa-circle negative'"></i>
+		</dt>
+		<dd>Zwift</dd>
+
+		<dt routerLink="/settings">
+			<i class="fas fa-cog"></i>
+		</dt>
+		<dd routerLink="/settings">Settings</dd>
+
+		<dt routerLink="/routes" [class.blinking]="stepRecorder.recording">
+			<i class="fas fa-route"></i>
+		</dt>
+		<dd routerLink="/routes" [class.blinking]="stepRecorder.recording">Routes</dd>
+
+		<!--TODO: In the future, we can notify when updates are available.-->
+		<!--<dt><i class="fas fa-glass-cheers positive"></i></dt>-->
+		<!--<dd>Update Available!</dd>-->
+	</dl>
+</div>
+
+<div class="state">
+	<div class="speed" routerLink="/control/speed">
+		<span class="amount">{{ speedAmount || 0 | number:'1.1-1' }}</span>
+		<span class="unit">{{ speedUnit }}</span>
+	</div>
+	<div class="incline" routerLink="/control/incline">
+		<span class="amount">{{ websocket.current?.bluetooth?.incline || 0 | number:'1.1-1' }}</span>
+		<span class="unit">%</span>
+	</div>
+	<div class="cadence" routerLink="/control/cadence">
+		<span class="amount">{{ websocket.current?.bluetooth?.cadence || 0 | number:'1.0-0' }}</span>
+		<span class="unit">SPM</span>
+	</div>
+</div>

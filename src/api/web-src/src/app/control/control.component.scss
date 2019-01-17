@@ -9,9 +9,23 @@
 	user-select: none;
 }
 
+.current-value {
+	position: absolute;
+	pointer-events: none;
+	font-size: 40vw;
+	opacity: 0.3;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
 .button-adjust {
 	flex: initial;
-	width: 60px;
+	width: 80px;
 	font-size: 4em;
 }
 
@@ -19,11 +33,15 @@
 	flex: 1;
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
-	font-size: 7vmin;
+	font-size: 10vmin;
 }
 
 .button-go {
 	grid-column: 2 / span 2;
+}
+
+.button-cancel {
+	opacity: 0.5;
 }
 
 button {
@@ -35,7 +53,7 @@ button {
 	outline: none;
 
 	&:hover {
-		color: #ccc;
+		background: #333;
 	}
 
 	&:focus {

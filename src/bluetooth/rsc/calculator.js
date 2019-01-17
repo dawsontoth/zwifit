@@ -1,6 +1,5 @@
 let utils = require('../../lib/utils');
 
-let metersPerMile = 1609.344;
 let secondsPerHour = 3600;
 let secondsPerMinute = 60;
 

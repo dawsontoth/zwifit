@@ -10,6 +10,8 @@ exports.metric = false;
 exports.ip = null;
 exports.speedOffset = 0;
 exports.speedMultiplier = 1;
+exports.broadcastRSC = false;
+exports.broadcastFTMS = true;
 
 exports.load = load;
 exports.toJSON = toJSON;

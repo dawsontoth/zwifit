@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import * as io from 'socket.io-client';
+import { ICurrentState } from '../models/currentState';
 
 export enum WebSocketEvents {
 	Change = 'change',
@@ -12,10 +13,7 @@ export enum WebSocketEvents {
 
 @Injectable()
 export class WebsocketService {
-	public current = {
-		bluetooth: { kph: 0, mph: 0, incline: 0, cadence: 0, miles: 0, kilometers: 0, time: 0 },
-		ifit: { connected: false }
-	};
+	public current:ICurrentState = {};
 	public settings = { ip: '', metric: false };
 	private socket;
 	private subjects:{ [key:string]:Subject<any> } = {};

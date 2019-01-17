@@ -2,12 +2,12 @@ let bleno = require('bleno'),
 	os = require('os'),
 	onDeath = require('death'),
 	constants = require('../constants'),
+	settings = require('../settings'),
 	events = require('../lib/events'),
 	utils = require('../lib/utils'),
-	// Note: RSC service is turned off as we don't have a source for cadence at the moment.
-	// rscService = new (require('./rsc/service'))(),
-	// rscCalculator = require('./rsc/calculator'),
-	treadmillService = new (require('./treadmill/service'))(),
+	rscService = settings.broadcastRSC && new (require('./rsc/service'))(),
+	rscCalculator = require('./rsc/calculator'),
+	treadmillService = settings.broadcastFTMS && new (require('./treadmill/service'))(),
 	treadmillCalculator = require('./treadmill/calculator');
 
 /*
@@ -18,6 +18,7 @@ let updateFPS = 5,
 	idle = true,
 	idleSecondsCount = 0,
 	current = {
+		clients: [],
 		time: 0,
 		hr: 0,
 		miles: 0,
@@ -35,9 +36,9 @@ let updateFPS = 5,
 		cadence: 0
 	},
 	services = [
-		// rscService,
+		rscService,
 		treadmillService
-	],
+	].filter(s => s),
 	serviceUUIDs = services.map(s => s.uuid),
 	updateID;
 
@@ -55,6 +56,8 @@ exports.start = start;
 function start() {
 	bleno.on('stateChange', onStateChanged);
 	bleno.on('advertisingStart', onAdvertisingStarted);
+	bleno.on('accept', onAccepted);
+	bleno.on('disconnect', onDisconnected);
 	events.on('changeReceived', onChangeReceived);
 	updateID = setInterval(emitUpdates, constants.UPDATE_INTERVAL_MILLISECONDS / updateFPS);
 	onDeath(cleanUp);
@@ -63,12 +66,26 @@ function start() {
 
 function onStateChanged(state) {
 	if (state === 'poweredOn') {
+		current.poweredOn = true;
 		console.log('Bluetooth: Powered On.');
 		bleno.startAdvertising(constants.NAME, serviceUUIDs);
 	}
 	else {
+		current.poweredOn = false;
 		console.log('Bluetooth: Powered Off.');
 		bleno.stopAdvertising();
+	}
+}
+
+function onAccepted(clientAddress) {
+	if (current.clients.indexOf(clientAddress) === -1) {
+		current.clients.push(clientAddress);
+	}
+}
+
+function onDisconnected(clientAddress) {
+	if (current.clients.indexOf(clientAddress) >= 0) {
+		current.clients.splice(current.clients.indexOf(clientAddress), 1);
 	}
 }
 
@@ -107,13 +124,13 @@ function emitUpdates() {
 		hr = rampCurrentValue('hr'),
 		cadence = rampCurrentValue('cadence'),
 		incline = rampCurrentValue('incline');
-	// if (rscService.measurement.updateValueCallback) {
-	// 	rscService.measurement.updateValueCallback(rscCalculator.calculateBuffer({
-	// 		kph,
-	// 		cadence
-	// 	}));
-	// }
-	if (treadmillService.measurement.updateValueCallback) {
+	if (rscService && rscService.measurement.updateValueCallback) {
+		rscService.measurement.updateValueCallback(rscCalculator.calculateBuffer({
+			kph: kph,
+			cadence: cadence
+		}));
+	}
+	if (treadmillService && treadmillService.measurement.updateValueCallback) {
 		treadmillService.measurement.updateValueCallback(treadmillCalculator.calculateBuffer({
 			kph: kph,
 			hr: hr,

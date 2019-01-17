@@ -3,7 +3,7 @@
 		<label for="ipAddress">
 			IP Address
 			<span class="text-muted">
-				(Connected: <strong>{{ websocket.current.ifit.connected ? 'Yes' : 'No' }}</strong>)</span>
+				(Connected: <strong>{{ websocket?.current?.ifit?.connected ? 'Yes' : 'No' }}</strong>)</span>
 		</label>
 		<input [(ngModel)]="websocket.settings.ip" name="ip" aria-describedby="ipHelp" class="form-control" id="ipAddress"
 		       placeholder="Enter IFit IP Address" type="text" (ngModelChange)="saveChanges()">
@@ -34,3 +34,13 @@
 		Your changes have been saved!
 	</div>
 </form>
+<div class="text-center">
+	<div class="btn-group">
+		<button routerLink="/" type="button" class="btn btn-secondary">
+			Back to Dashboard
+		</button>
+	</div>
+</div>
+
+
+<pre>{{ websocket.current | json }}</pre>

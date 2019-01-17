@@ -113,6 +113,9 @@ function onMessage(message) {
 	if (parsed['Chest Pulse'] !== undefined) {
 		changes['hr'] = safeParseFloat(parsed['Chest Pulse']);
 	}
+	if (parsed['Cadence'] !== undefined) {
+		changes['cadence'] = safeParseFloat(parsed['Cadence']);
+	}
 	if (Object.keys(changes).length) {
 		events.fire('changeReceived', changes);
 	}
