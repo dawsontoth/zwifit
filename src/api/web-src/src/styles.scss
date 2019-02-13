@@ -5,11 +5,13 @@ html, body {
 }
 
 body {
-	background: url('assets/metal-texture-1544288.jpg') no-repeat center center;
-	background-size: cover;
-	background-attachment: fixed;
 	font-family: 'Source Sans Pro', sans-serif;
 	text-shadow: 1px 1px 2px #000000;
+	background: rgb(125, 126, 125); /* Old browsers */
+	background: -moz-linear-gradient(-45deg, rgba(125, 126, 125, 1) 0%, rgba(14, 14, 14, 1) 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(-45deg, rgba(125, 126, 125, 1) 0%, rgba(14, 14, 14, 1) 100%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(135deg, rgba(125, 126, 125, 1) 0%, rgba(14, 14, 14, 1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	background-attachment: fixed;
 }
 
 form {
@@ -22,6 +24,17 @@ form {
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
+}
+
+pre {
+	padding: 6px 12px;
+}
+
+pre,
+.text-muted {
+	color: white !important;
+	opacity: 0.5;
+	text-shadow: none;
 }
 
 .blinking {

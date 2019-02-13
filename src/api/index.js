@@ -2,6 +2,7 @@ let express = require('express'),
 	path = require('path'),
 	app = express(),
 	settings = require('../settings'),
+	routes = require('../routes'),
 	server = require('http').Server(app),
 	io = require('socket.io')(server),
 	events = require('../lib/events');
@@ -27,19 +28,25 @@ exports.start = () => {
 					settings.save();
 					socket.emit('message', { event: 'readSettings', data: settings.toJSON() });
 					break;
+				case 'writeRoutes':
+					routes.fromJSON({ list: msg.data });
+					routes.save();
+					socket.emit('message', { event: 'readRoutes', data: routes.list });
+					break;
 				default:
 					console.log('Unexpected message received', msg);
 			}
 		});
 		socket.emit('message', { event: 'current', data: current });
 		socket.emit('message', { event: 'readSettings', data: settings.toJSON() });
+		socket.emit('message', { event: 'readRoutes', data: routes.list });
 		// socket.on('disconnect', () => {});
 	});
 
-	setInterval(
-		() => io.emit('message', { event: 'current', data: current }),
-		1000
-	);
+	// setInterval(
+	// 	() => io.emit('message', { event: 'current', data: current }),
+	// 	1000
+	// );
 	events.on('changeReceived', changes => {
 		io.emit('message', { event: 'change', data: changes });
 		io.emit('message', { event: 'current', data: current });

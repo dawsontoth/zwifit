@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import * as io from 'socket.io-client';
 import { ICurrentState } from '../models/currentState';
@@ -8,36 +8,37 @@ export enum WebSocketEvents {
 	Current = 'current',
 	ReadSettings = 'readSettings',
 	WriteSettings = 'writeSettings',
+	ReadRoutes = 'readRoutes',
+	WriteRoutes = 'writeRoutes',
 	Control = 'control'
 }
 
 @Injectable()
 export class WebsocketService {
 	public current:ICurrentState = {};
-	public settings = { ip: '', metric: false };
+	public settings = {
+		ip: '',
+		metric: false,
+		speedOffset: 0,
+		speedMultiplier: 1,
+		broadcastRSC: false,
+		broadcastFTMS: true
+	};
+	public routes:any[] = [];
 	private socket;
 	private subjects:{ [key:string]:Subject<any> } = {};
 
+	constructor(private ngZone:NgZone) {
+	}
+
+	/*
+	 Public API.
+	 */
+
 	public connect() {
-		this.socket = io(location.hostname + ':1337');
-		this.socket.on('message', message => {
-			if (!message) {
-				return;
-			}
-			let event = message.event;
-
-			switch (event) {
-				case WebSocketEvents.Current:
-					this.current = message.data;
-					break;
-				case WebSocketEvents.ReadSettings:
-					this.settings = message.data;
-					break;
-			}
-
-			if (this.subjects[event]) {
-				this.subjects[event].next(message.data);
-			}
+		this.ngZone.runOutsideAngular(() => {
+			this.socket = io(location.hostname + ':1337');
+			this.socket.on('message', message => this.handleMessage(message));
 		});
 	}
 
@@ -58,6 +59,35 @@ export class WebsocketService {
 			this.subjects[event] = new Subject();
 		}
 		return this.subjects[event];
+	}
+
+	/*
+	 Utility.
+	 */
+
+	private handleMessage(message) {
+		if (!message) {
+			return;
+		}
+		let event = message.event;
+
+		this.ngZone.run(() => {
+			switch (event) {
+				case WebSocketEvents.Current:
+					this.current = message.data;
+					break;
+				case WebSocketEvents.ReadSettings:
+					this.settings = message.data;
+					break;
+				case WebSocketEvents.ReadRoutes:
+					this.routes = message.data;
+					break;
+			}
+
+			if (this.subjects[event]) {
+				this.subjects[event].next(message.data);
+			}
+		});
 	}
 
 }

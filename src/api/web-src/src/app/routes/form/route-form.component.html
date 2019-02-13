@@ -1,10 +1,7 @@
 <form>
-	<div class="alert text-danger">
-		WARNING: This hasn&rsquo;t been fully implemented yet! It&rsquo;s a partial idea.
-	</div>
 	<div class="form-group">
 		<label for="routeName">Route Name</label>
-		<input class="form-control" id="routeName" name="routeName" required type="text">
+		<input [(ngModel)]="route.name" class="form-control" id="routeName" name="routeName" required type="text">
 	</div>
 	<div class="form-group">
 		<label for="routeName">Steps</label>
@@ -23,12 +20,15 @@
 		</small>
 	</div>
 	<div class="btn-group">
-		<button disabled type="button" class="btn btn-success" (click)="saveChanges()">
-			Save Changes
+		<button routerLink="/routes" type="button" class="btn btn-secondary">
+			Back to Routes
 		</button>
 		<button type="button" class="btn btn-danger" (click)="toggleRecording()"
 		        [class.blinking]="stepRecorder.recording">
 			{{ stepRecorder.recording ? 'Stop' : 'Start' }} Recording Steps
+		</button>
+		<button type="button" class="btn btn-success" (click)="saveChanges()" [disabled]="changesSaved ? true : null">
+			{{ changesSaved ? 'Changes Saved!' : 'Save Changes' }}
 		</button>
 	</div>
 </form>

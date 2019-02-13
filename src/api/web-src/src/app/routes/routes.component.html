@@ -2,11 +2,11 @@
 	<thead>
 	<tr>
 		<th scope="col">Name</th>
-		<th scope="col">Length</th>
+		<th scope="col">Steps</th>
 		<th scope="col">Actions</th>
 	</tr>
 	</thead>
-	<tbody *ngIf="routes?.length === 0">
+	<tbody *ngIf="!routes?.length">
 	<tr>
 		<td colspan="3">
 			No routes have been added yet!
@@ -18,20 +18,32 @@
 		<td>{{ route.name }}</td>
 		<td>{{ route.length }}</td>
 		<td>
-			<i class="fas fa-trash"></i>
-			<span class="text-muted">&middot;</span>
-			<button *ngIf="!route.playing"
-			        type="button"
-			        (click)="route.togglePlaying()">
-				<i class="fas fa-play"></i>
-				<span class="sr-only">Play {{ route.name }}</span>
-			</button>
-			<button *ngIf="route.playing"
-			        type="button"
-			        (click)="route.togglePlaying()">
-				<i class="fas fa-stop"></i>
-				<span class="sr-only">Stop {{ route.name }}</span>
-			</button>
+			<div class="btn-group">
+
+				<button [routerLink]="'/routes/' + route.id" class="btn btn-secondary" type="button">
+					<i class="fas fa-edit"></i>
+					Edit
+				</button>
+
+				<button (click)="deleteRoute(route)" class="btn btn-danger" type="button">
+					<i class="fas fa-trash"></i>
+					Delete
+				</button>
+
+				<!--TODO: Need to figure out playback of routes.-->
+				<!--<button class="btn btn-success" *ngIf="!route.playing"-->
+				<!--type="button"-->
+				<!--(click)="route.togglePlaying()">-->
+				<!--<i class="fas fa-play"></i>-->
+				<!--Play-->
+				<!--</button>-->
+				<!--<button class="btn btn-danger blinking" *ngIf="route.playing"-->
+				<!--type="button"-->
+				<!--(click)="route.togglePlaying()">-->
+				<!--<i class="fas fa-stop"></i>-->
+				<!--Stop-->
+				<!--</button>-->
+			</div>
 		</td>
 	</tr>
 	</tbody>
@@ -42,7 +54,7 @@
 		<button routerLink="/" type="button" class="btn btn-secondary">
 			Back to Dashboard
 		</button>
-		<button routerLink="/routes/form" type="button" class="btn btn-success">
+		<button routerLink="/routes/new" type="button" class="btn btn-success">
 			Add a New Route
 		</button>
 	</div>

@@ -13,68 +13,42 @@
 	color: red;
 }
 
-.toggle-full-screen {
-	position: absolute;
-	top: 0;
-	right: 0;
-	background: #000;
-	color: #fff;
-	border: none;
-	cursor: pointer;
-	&:hover {
-		background: #222;
-		color: #ddd;
-	}
-}
-
 .status {
 	flex: initial;
 	width: 160px;
 	margin-right: 10px;
 	font-size: 1.5em;
 
-	dl {
-		display: grid;
-		grid-template: auto / 1.5em 1fr;
+	div {
+		padding: 12px;
 	}
 
-	dt {
-		grid-column: 1;
+	i {
+		margin-right: 6px;
 	}
-
-	dd {
-		grid-column: 2;
-	}
-
-	dt,
-	dd {
-		margin: 0;
-		padding: .3em .5em;
-	}
-}
-
-[routerlink]:hover {
-	background: #333;
-	cursor: pointer;
 }
 
 .state {
 	flex: 1;
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	grid-template-rows: 2fr 1fr;
-	grid-template-areas: 'top top' 'left right';
+	display: flex;
+	flex-direction: row;
+	align-items: stretch;
+	justify-content: stretch;
+	flex-wrap: wrap;
+	overflow: hidden;
 
 	.speed {
-		grid-area: top;
+		flex: 100%;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
+		height: 40vh;
 
 		.amount {
 			flex: 4;
 			font-size: 25vw;
 			text-align: right;
+			pointer-events: none;
 		}
 
 		.unit {
@@ -82,48 +56,31 @@
 			writing-mode: vertical-rl;
 			text-orientation: mixed;
 			font-size: 8vw;
+			pointer-events: none;
 		}
 	}
 
-	.incline {
-		grid-area: left;
+	.stat {
+		flex: 50%;
 		display: flex;
 		flex-direction: row;
-		align-items: flex-start;
+		align-items: center;
+		height: 20vh;
 
 		.amount {
 			flex: 4;
 			font-size: 14vw;
 			text-align: right;
-			line-height: 40px;
+			pointer-events: none;
 		}
 
 		.unit {
 			flex: 1;
 			text-align: left;
 			font-size: 3vw;
-		}
-	}
-
-	.cadence {
-		grid-area: right;
-		display: flex;
-		flex-direction: row;
-		align-items: flex-start;
-
-		.amount {
-			flex: 4;
-			font-size: 14vw;
-			text-align: right;
-			line-height: 40px;
-		}
-
-		.unit {
-			flex: 1;
-			text-align: left;
 			writing-mode: vertical-rl;
 			text-orientation: mixed;
-			font-size: 3vw;
+			pointer-events: none;
 		}
 	}
 

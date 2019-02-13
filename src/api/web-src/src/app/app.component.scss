@@ -7,4 +7,17 @@
 .router-outlet {
 	flex: 1;
 	color: #fff;
+	display: flex;
+	align-items: stretch;
+	justify-content: stretch;
+
+	router-outlet {
+		display: none;
+	}
+}
+
+::ng-deep {
+	.router-outlet > * {
+		flex: 1;
+	}
 }

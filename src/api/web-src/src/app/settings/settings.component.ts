@@ -23,6 +23,9 @@ export class SettingsComponent {
 	}
 
 	public saveChanges() {
+		if (!this.websocket.settings.speedMultiplier || this.websocket.settings.speedMultiplier < 0) {
+			this.websocket.settings.speedMultiplier = 1;
+		}
 		this.websocket.send(WebSocketEvents.WriteSettings, this.websocket.settings);
 		if (this.changesSaved) {
 			clearTimeout(this.changesSaved);

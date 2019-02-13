@@ -1,12 +1,11 @@
 :host {
 	display: flex;
-	width: 100%;
-	height: 100%;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
+	overflow: hidden;
 }
 
 .current-value {
@@ -21,6 +20,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	overflow: hidden;
 }
 
 .button-adjust {
@@ -31,33 +31,40 @@
 
 .buttons {
 	flex: 1;
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
+	display: flex;
 	font-size: 10vmin;
-}
+	flex-direction: row;
+	flex-wrap: wrap;
 
-.button-go {
-	grid-column: 2 / span 2;
-}
+	.button {
+		flex: 33%;
+	}
 
-.button-cancel {
-	opacity: 0.5;
+	.button-cancel {
+		flex: 40%;
+	}
+
+	.button-go {
+		flex: 60%;
+	}
 }
 
 button {
 	background: none;
 	border: 2px solid transparent;
 	cursor: pointer;
+	touch-action: manipulation;
 
 	color: #fff;
 	outline: none;
-
-	&:hover {
-		background: #333;
-	}
+	white-space: nowrap;
 
 	&:focus {
 		color: #00db00;
 		border-color: #0f0;
 	}
+}
+
+.button-cancel {
+	opacity: 0.5;
 }

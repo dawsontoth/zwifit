@@ -3,8 +3,18 @@ export class RecordedRoute {
 	public name:string;
 	public steps:string;
 	public length:string;
-
 	public playing:boolean;
+
+	constructor(r?:any, id?:number) {
+		this.id = id;
+
+		if (r) {
+			this.name = r.name;
+			this.steps = r.steps;
+			this.length = r.length;
+			this.playing = r.playing;
+		}
+	}
 
 	public togglePlaying() {
 		this.playing = !this.playing;

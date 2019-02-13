@@ -8,8 +8,6 @@ import { WebsocketService } from '../services/webSocket';
 	styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent {
-	public isFullScreen = false;
-
 	constructor(public websocket:WebsocketService,
 				public stepRecorder:StepRecorderService) {
 	}
@@ -29,20 +27,41 @@ export class DashboardComponent {
 		return this.websocket.settings.metric ? 'KPH' : 'MPH';
 	}
 
-	public toggleFullScreen() {
-		this.isFullScreen = !this.isFullScreen;
+	public get otherSpeedAmount() {
+		if (!this.websocket
+			|| !this.websocket.current
+			|| !this.websocket.current.bluetooth) {
+			return 0;
+		}
+		return !this.websocket.settings.metric
+			? this.websocket.current.bluetooth.kph
+			: this.websocket.current.bluetooth.mph;
+	}
 
-		let elem = document.documentElement;
-		if (this.isFullScreen) {
-			if (elem.requestFullscreen) {
-				elem.requestFullscreen();
-			}
+	public get otherSpeedUnit() {
+		return !this.websocket.settings.metric ? 'KPH' : 'MPH';
+	}
+
+	public get paceAmount() {
+		if (!this.websocket
+			|| !this.websocket.current
+			|| !this.websocket.current.bluetooth) {
+			return '-:--';
 		}
-		else {
-			if (document.exitFullscreen) {
-				document.exitFullscreen();
-			}
+		let perHour = this.websocket.settings.metric
+			? this.websocket.current.bluetooth.kph
+			: this.websocket.current.bluetooth.mph,
+			pace = 60 / perHour,
+			minutes = pace | 0,
+			seconds:string | number = (((pace % minutes) || 0) * 60) | 0;
+		if (seconds < 10) {
+			seconds = '0' + seconds;
 		}
+		return minutes + ':' + seconds;
+	}
+
+	public get paceUnit() {
+		return this.websocket.settings.metric ? 'min/km' : 'min/mi';
 	}
 
 }

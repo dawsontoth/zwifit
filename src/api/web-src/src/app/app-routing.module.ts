@@ -10,8 +10,8 @@ const routes:Routes = [
 	{ path: '', component: DashboardComponent },
 	{ path: 'control/:metric', component: ControlComponent },
 	{ path: 'routes', component: RoutesComponent },
-	{ path: 'routes/form', component: RouteFormComponent },
-	{ path: 'routes/form/:id', component: RouteFormComponent },
+	{ path: 'routes/new', component: RouteFormComponent },
+	{ path: 'routes/:id', component: RouteFormComponent },
 	{ path: 'settings', component: SettingsComponent },
 ];
 

@@ -1,4 +1,5 @@
 <form>
+
 	<div class="form-group">
 		<label for="ipAddress">
 			IP Address
@@ -12,6 +13,7 @@
 			address in your router&rsquo;s settings so you don&rsquo;t have to chain this very often!
 		</small>
 	</div>
+
 	<div class="form-group">
 		<label>
 			Units
@@ -30,11 +32,84 @@
 			What unit of measurement would you like to use?
 		</small>
 	</div>
-	<div *ngIf="changesSaved" class="alert">
-		Your changes have been saved!
+
+	<div class="form-group">
+		<label for="speedOffset">
+			Speed Offset
+		</label>
+		<input [(ngModel)]="websocket.settings.speedOffset" name="speedOffset" aria-describedby="speedOffsetHelp" class="form-control"
+		       id="speedOffset"
+		       placeholder="Enter Speed Offset" type="text" (ngModelChange)="saveChanges()">
+		<small class="form-text text-muted" id="speedOffsetHelp">
+			Should we add something to the speed we receive from IFit? Negative numbers work here, too.
+			This lets you adjust your speed by a constant amount. For example, if you enter 0.5 here, then if IFit tells us you're traveling
+			4 MPH, we'll report 4.5 MPH to Zwift.
+		</small>
 	</div>
+
+	<div class="form-group">
+		<label for="speedMultiplier">
+			Speed Multiplier
+		</label>
+		<input [(ngModel)]="websocket.settings.speedMultiplier" name="speedMultiplier" aria-describedby="speedMultiplierHelp"
+		       class="form-control"
+		       id="speedMultiplier"
+		       placeholder="Enter Speed Multiplier" type="text" (ngModelChange)="saveChanges()">
+		<small class="form-text text-muted" id="speedMultiplierHelp">
+			Should we multiply the speed we receive from IFit?
+			This lets you scale your speed. For example, if you enter 1.1 here, then if IFit tells us you're traveling
+			4 MPH, we'll report 4.4 MPH to Zwift.
+		</small>
+	</div>
+
+	<div class="form-group">
+		<label for="broadcastRSC">
+			Broadcast Run-Speed-Cadence
+		</label>
+		<div class="custom-control custom-switch">
+			<input type="checkbox" class="custom-control-input"
+			       name="broadcastRSC"
+			       [checked]="websocket.settings.broadcastRSC"
+			       (change)="websocket.settings.broadcastRSC = !websocket.settings.broadcastRSC; saveChanges()"
+			       aria-describedby="broadcastRSCHelp"
+			       id="broadcastRSC">
+			<label class="custom-control-label"
+			       for="broadcastRSC">{{ websocket.settings.broadcastRSC ? 'Broadcasting!' : 'Not Broadcasting' }}</label>
+		</div>
+		<small class="form-text text-muted" id="broadcastRSCHelp">
+			Should we broadcast Bluetooth's Run-Speed-Cadence service? If you don't, then cadence won't
+			be communicated. This can be useful if you want to use a footpod instead. But some apps, like RunSocial,
+			require this service to be turned on, and don't know about the fitness-machine service.
+		</small>
+	</div>
+
+	<div class="form-group">
+		<label for="broadcastFTMS">
+			Broadcast Fitness-Machine Service
+		</label>
+		<div class="custom-control custom-switch">
+			<input type="checkbox" class="custom-control-input"
+			       name="broadcastFTMS"
+			       [checked]="websocket.settings.broadcastFTMS"
+			       (change)="websocket.settings.broadcastFTMS = !websocket.settings.broadcastFTMS; saveChanges()"
+			       aria-describedby="broadcastFTMSHelp"
+			       id="broadcastFTMS">
+			<label class="custom-control-label"
+			       for="broadcastFTMS">{{ websocket.settings.broadcastFTMS ? 'Broadcasting!' : 'Not Broadcasting' }}</label>
+		</div>
+		<small class="form-text text-muted" id="broadcastFTMSHelp">
+			Should we broadcast Bluetooth's Fitness-Machine service? If you don't, then cadence won't
+			be communicated. This can be useful if you want to use a footpod instead.
+		</small>
+	</div>
+
 </form>
 <div class="text-center">
+
+	<span *ngIf="changesSaved" class="alert">
+		Your changes have been saved!
+	</span>
+
 	<div class="btn-group">
 		<button routerLink="/" type="button" class="btn btn-secondary">
 			Back to Dashboard

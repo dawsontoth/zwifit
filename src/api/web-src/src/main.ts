@@ -1,8 +1,11 @@
 import { enableProdMode } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import * as fastClick from 'fastclick';
 
 import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
+
+fastClick.attach(document.body);
 
 if (environment.production) {
 	enableProdMode();

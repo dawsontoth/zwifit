@@ -1,33 +1,29 @@
-<button class="toggle-full-screen" (click)="toggleFullScreen()" type="button">
-	<i [ngClass]="'fas fa-' + (isFullScreen ? 'compress' : 'expand') + '-arrows-alt'"></i>
-	{{ isFullScreen ? 'Close' : 'Expand' }}
-</button>
-
 <div class="status">
-	<dl>
-		<dt>
-			<i [ngClass]="websocket.current?.ifit?.connected ? 'fas fa-check-circle positive' : 'far fa-circle negative'"></i></dt>
-		<dd>IFit</dd>
+	<div>
+		<i [ngClass]="websocket.current?.ifit?.connected ? 'fas fa-check-circle positive' : 'far fa-circle negative'"></i>
+		IFit
+	</div>
 
-		<dt>
-			<i [ngClass]="websocket.current?.bluetooth?.clients?.length ? 'fas fa-check-circle positive' : 'far fa-circle negative'"></i>
-		</dt>
-		<dd>Zwift</dd>
+	<div>
+		<i [ngClass]="websocket.current?.bluetooth?.clients?.length ? 'fas fa-check-circle positive' : 'far fa-circle negative'"></i>
+		Zwift
+	</div>
 
-		<dt routerLink="/settings">
-			<i class="fas fa-cog"></i>
-		</dt>
-		<dd routerLink="/settings">Settings</dd>
+	<div routerLink="/settings">
+		<i class="fas fa-cog"></i>
+		Settings
+	</div>
 
-		<dt routerLink="/routes" [class.blinking]="stepRecorder.recording">
-			<i class="fas fa-route"></i>
-		</dt>
-		<dd routerLink="/routes" [class.blinking]="stepRecorder.recording">Routes</dd>
+	<div routerLink="/routes" [class.blinking]="stepRecorder.recording">
+		<i class="fas fa-route"></i>
+		Routes
+	</div>
 
-		<!--TODO: In the future, we can notify when updates are available.-->
-		<!--<dt><i class="fas fa-glass-cheers positive"></i></dt>-->
-		<!--<dd>Update Available!</dd>-->
-	</dl>
+	<!--TODO: In the future, we can notify when updates are available.-->
+	<!--<div routerLink="/settings" [class.blinking]="stepRecorder.recording">-->
+	<!--<i class="fas fa-glass-cheers positive"></i>-->
+	<!--Update Available!-->
+	<!--</div>-->
 </div>
 
 <div class="state">
@@ -35,12 +31,20 @@
 		<span class="amount">{{ speedAmount || 0 | number:'1.1-1' }}</span>
 		<span class="unit">{{ speedUnit }}</span>
 	</div>
-	<div class="incline" routerLink="/control/incline">
+	<div class="stat" routerLink="/control/incline">
 		<span class="amount">{{ websocket.current?.bluetooth?.incline || 0 | number:'1.1-1' }}</span>
 		<span class="unit">%</span>
 	</div>
-	<div class="cadence" routerLink="/control/cadence">
+	<div class="stat" routerLink="/control/cadence">
 		<span class="amount">{{ websocket.current?.bluetooth?.cadence || 0 | number:'1.0-0' }}</span>
 		<span class="unit">SPM</span>
+	</div>
+	<div class="stat" routerLink="/control/speed">
+		<span class="amount">{{ paceAmount }}</span>
+		<span class="unit">{{ paceUnit }}</span>
+	</div>
+	<div class="stat" routerLink="/control/speed">
+		<span class="amount">{{ otherSpeedAmount || 0 | number:'1.1-1' }}</span>
+		<span class="unit">{{ otherSpeedUnit }}</span>
 	</div>
 </div>

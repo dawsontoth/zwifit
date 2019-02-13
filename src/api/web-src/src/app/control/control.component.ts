@@ -68,16 +68,29 @@ export class ControlComponent implements OnInit, OnDestroy {
 		}
 	}
 
+	private get adjustBy() {
+		switch (this.metric) {
+			case 'speed':
+				return 0.1;
+			case 'incline':
+				return 0.5;
+			case 'cadence':
+				return 5;
+			default:
+				return 1;
+		}
+	}
+
 	@HostListener('window:keydown', ['$event'])
 	private handleKeyDown(evt:any) {
 		switch (evt.key) {
 			case 'ArrowUp':
 			case 'ArrowRight':
-				this.adjust(0.1);
+				this.adjust(this.adjustBy);
 				break;
 			case 'ArrowDown':
 			case 'ArrowLeft':
-				this.adjust(-0.1);
+				this.adjust(-1 * this.adjustBy);
 				break;
 			case '-':
 			case '1':
@@ -115,22 +128,29 @@ export class ControlComponent implements OnInit, OnDestroy {
 	}
 
 	public adjust(by:number) {
-		let data = {};
-		let currentStatus = this.websocket.current.bluetooth;
+		let data = {},
+			currentStatus = this.websocket.current.bluetooth,
+			setTo;
 		switch (this.metric) {
 			case 'speed':
 				let metric = this.websocket.settings.metric,
 					currentSpeed = metric ? currentStatus.kph : currentStatus.mph;
-				data[metric ? 'kph' : 'mph'] = Math.min(Math.max(currentSpeed + by, 0), 30);
+				setTo = currentSpeed + by * this.adjustBy;
+				data[metric ? 'kph' : 'mph'] = Math.min(Math.max(setTo, 0), 30);
 				break;
 			case 'incline':
-				data['incline'] = Math.max(Math.min(currentStatus.incline + by, 40), -10);
+				setTo = currentStatus.incline + by * this.adjustBy;
+				setTo -= setTo % this.adjustBy;
+				data['incline'] = Math.max(Math.min(setTo, 40), -10);
 				break;
 			case 'cadence':
-				data['cadence'] = Math.min(Math.max(currentStatus.cadence + by, 0), 200);
+				setTo = currentStatus.cadence + by * this.adjustBy;
+				setTo -= setTo % this.adjustBy;
+				data['cadence'] = Math.min(Math.max(setTo, 0), 200);
 				break;
 		}
 		this.websocket.send(WebSocketEvents.Control, data);
+		return false;
 	}
 
 	public clicked(button:string) {
@@ -176,5 +196,6 @@ export class ControlComponent implements OnInit, OnDestroy {
 		if (goHome) {
 			this.router.navigate(['/']);
 		}
+		return false;
 	}
 }
