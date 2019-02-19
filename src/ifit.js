@@ -77,9 +77,12 @@ function controlRequested(message) {
 }
 
 function onMessage(message) {
-	let parsed = safeJSONParse(message.utf8Data || message.data);
+	let parsed = safeJSONParse(message ? message.utf8Data || message.data : null);
 	if (debug) {
 		console.log('iFit:', parsed);
+	}
+	if (!parsed) {
+		return;
 	}
 	// TODO: Also parse out the distance traveled so we don't have to calculate it?
 	if (parsed.values) {
@@ -122,6 +125,9 @@ function onMessage(message) {
 }
 
 function safeJSONParse(string) {
+	if (!string) {
+		return null;
+	}
 	try {
 		return JSON.parse(string);
 	}
