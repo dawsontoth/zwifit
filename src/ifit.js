@@ -1,4 +1,6 @@
 let WebSocketClient = require('websocket').client,
+	find = require('local-devices'),
+	async = require('async'),
 	onDeath = require('death'),
 	settings = require('./settings'),
 	events = require('./lib/events');
@@ -7,6 +9,7 @@ let WebSocketClient = require('websocket').client,
  State.
  */
 let debug = false,
+	scanning = false,
 	current = {},
 	client,
 	lastConnection,
@@ -28,20 +31,58 @@ function connect() {
 	client.on('connect', onConnected);
 	events.on('controlRequested', controlRequested);
 	ensureConnectedID = setInterval(ensureConnected, 10 * 1000);
-	ensureConnected();
+	setTimeout(ensureConnected, 1);
 	onDeath(cleanUp);
 }
 
 function ensureConnected() {
-	if (!current.connected && settings.ip) {
+	if (current.connected) {
+		return;
+	}
+	if (settings.ip) {
 		console.log('iFit: Connecting...');
 		client.connect(`ws://${settings.ip}/control`);
+	}
+	else if (!scanning) {
+		scanning = true;
+		console.log('iFit: Scanning your network...');
+		find()
+			.then(devices => {
+				devices.unshift({ ip: '127.0.0.1' });
+				devices.unshift({ ip: '127.0.0.1:8080' });
+				if (settings.lastIP) {
+					devices.unshift({ ip: settings.lastIP });
+					settings.lastIP = null;
+				}
+				async.eachLimit(
+					devices,
+					100,
+					async device => {
+						if (await test(device.ip)) {
+							// No error thrown? Then we connected!
+							console.log('IFit: Found ' + device.ip);
+							settings.lastIP = device.ip;
+							client.connect(`ws://${settings.lastIP}/control`);
+							throw new Error('Stop trying to connect to others');
+						}
+					},
+					() => {
+						if (!settings.lastIP) {
+							console.log('iFit: Nothing found. Will try again...');
+						}
+						return scanning = false;
+					});
+			})
+			.catch(err => {
+				console.error('iFit: ' + err);
+				scanning = false;
+			});
 	}
 }
 
 function onConnectFailed(error) {
 	current.connected = false;
-	console.log('iFit: Connect Error: ' + error.toString());
+	console.error('iFit: Connect Error: ' + error.toString());
 }
 
 function onConnected(connection) {
@@ -84,7 +125,7 @@ function onMessage(message) {
 	if (!parsed) {
 		return;
 	}
-	// TODO: Also parse out the distance traveled so we don't have to calculate it?
+	// TODO: Parse out the distance traveled so we don't have to calculate it?
 	if (parsed.values) {
 		parsed = parsed.values;
 	}
@@ -146,12 +187,12 @@ function safeParseFloat(val) {
 }
 
 function onError(error) {
-	console.error('Connection Error: ' + error.toString());
+	console.error('iFit: Connection Error: ' + error.toString());
 }
 
 function onClose() {
 	current.connected = false;
-	console.log('iFit Connection Closed');
+	console.log('iFit: Connection Closed');
 }
 
 function cleanUp() {
@@ -163,6 +204,54 @@ function cleanUp() {
 		}
 	}
 	catch (err) {
-		console.error(err);
+		console.error('iFit: ' + err);
 	}
+}
+
+function test(ip) {
+	return new Promise(resolve => {
+		let client = new WebSocketClient(),
+			resolved = false,
+			timeoutID,
+			finished = succeeded => {
+				if (timeoutID) {
+					clearTimeout(timeoutID);
+					timeoutID = null;
+				}
+				if (!resolved) {
+					if (client) {
+						client.abort();
+						client = null;
+					}
+					resolved = true;
+					if (!succeeded) {
+						resolve(false);
+					}
+					else {
+						resolve(true);
+					}
+				}
+			};
+		client.on('connectFailed', failed => finished(false));
+		client.on('connect', connection => {
+			if (!scanning) {
+				if (client) {
+					client.abort();
+					client = null;
+				}
+				return;
+			}
+			connection.on('error', err => finished(false));
+			connection.on('close', closed => finished(false));
+			connection.on('message', message => {
+				let parsed = safeJSONParse(message ? message.utf8Data || message.data : null);
+				if (parsed.values) {
+					parsed = parsed.values;
+				}
+				finished(parsed['MPH'] !== undefined || parsed['KPH'] !== undefined);
+			});
+		});
+		client.connect(`ws://${ip}/control`);
+		timeoutID = setTimeout(() => finished(false), 5000);
+	});
 }
