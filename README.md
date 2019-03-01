@@ -126,12 +126,6 @@ The app runs a local web server that displays information from your treadmill, a
 
 Pull requests are welcome! Do your best to emulate the code around what you are editing.
 
-## Want a custom solution?
-
-If the above looks scary, and you'd rather pay me to ship you a Raspberry Pi pre-configured for your
-treadmill and home Wi-Fi, you can email me dawson-at-tothsolutions-dot-com. Let me know what city and
-country you live in so I can estimate shipping costs.
-
 ## Thank you!
 
 If this works for you and improves your running experience, please consider donating to the developer
