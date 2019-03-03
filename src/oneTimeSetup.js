@@ -1,4 +1,5 @@
 let fs = require('fs'),
+	os = require('os'),
 	readline = require('readline'),
 	settings = require('./settings');
 
@@ -36,7 +37,7 @@ async function setup(ready) {
 
 		settings.ip = await question('What is the IP of your treadmill? (Leave blank to search)');
 		settings.metric = isYes(await question('Do you want to use metric units (KPH)? (Answer Y or N)'));
-		console.log('Awesome! You can visit http://raspberrypi.local:1337 to update these settings later.');
+		console.log('Awesome! You can visit http://' + os.hostname() + '.local:1337 to update these settings later.');
 
 		readlineInterface.close();
 		settings.save();
