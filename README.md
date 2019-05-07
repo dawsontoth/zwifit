@@ -116,11 +116,14 @@ pm2 restart all
 ## Calibration
 
 Zwifit will report your treadmill's exact speed, as measured by the machine itself. You can use the calibration
-feature within Zwift to adjust this, just like you would with a footpod.
+feature within Zwift to adjust this, just like you would with a footpod. Alternatively, load up the Zwifit Web UI
+and head to the Settings page.
 
 ## Control and Monitoring
 
 The app runs a local web server that displays information from your treadmill, allows changing settings, and allows manual control of speed and incline. This can be used to change the speed and incline of your treadmill, too. To access this web site, you'll need to know the IP of your Pi, or the hostname, depending on your wireless router. For me, I can access it at http://raspberrypi.local:1337/ You may need to do the full IP, such as http://192.168.0.50:1337/ -- or if you're running this on a laptop, at http://localhost:1337/
+
+If you have a monitor or touch screen connected to your Pi, you can run it in Kiosk mode. It can launch the Zwifit UI automatically. Follow the steps in this article to get started: https://pimylifeup.com/raspberry-pi-kiosk/
 
 ## Contributing
 
