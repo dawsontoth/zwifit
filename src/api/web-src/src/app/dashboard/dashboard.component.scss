@@ -68,13 +68,16 @@
 		height: 20vh;
 
 		.amount {
+			display: block;
 			flex: 4;
-			font-size: 14vw;
+			font-size: 10vw;
 			text-align: right;
 			pointer-events: none;
+			overflow: hidden;
 		}
 
 		.unit {
+			display: block;
 			flex: 1;
 			text-align: left;
 			font-size: 3vw;
