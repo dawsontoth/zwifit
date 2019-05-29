@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ControlComponent } from './control/control.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { StatComponent } from './dashboard/stat/stat.component';
 import { RouteFormComponent } from './routes/form/route-form.component';
 import { RoutesComponent } from './routes/routes.component';
 import { StepRecorderService } from './services/stepRecorder';
@@ -18,18 +19,19 @@ import { SettingsComponent } from './settings/settings.component';
 		SettingsComponent,
 		RoutesComponent,
 		ControlComponent,
-		RouteFormComponent
+		RouteFormComponent,
+		StatComponent,
 	],
 	imports: [
 		BrowserModule,
 		FormsModule,
-		AppRoutingModule
+		AppRoutingModule,
 	],
 	providers: [
 		StepRecorderService,
-		WebsocketService
+		WebsocketService,
 	],
-	bootstrap: [ AppComponent ]
+	bootstrap: [AppComponent],
 })
 export class AppModule {
 }

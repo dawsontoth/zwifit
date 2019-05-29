@@ -27,24 +27,25 @@
 </div>
 
 <div class="state">
-	<div class="speed" routerLink="/control/speed">
-		<span class="amount">{{ speedAmount || 0 | number:'1.1-1' }}</span>
-		<span class="unit">{{ speedUnit }}</span>
-	</div>
-	<div class="stat" routerLink="/control/incline">
-		<span class="amount">{{ websocket.current?.bluetooth?.incline || 0 | number:'1.1-1' }}</span>
-		<span class="unit">%</span>
-	</div>
-	<div class="stat" routerLink="/control/cadence">
-		<span class="amount">{{ websocket.current?.bluetooth?.cadence || 0 | number:'1.0-0' }}</span>
-		<span class="unit">SPM</span>
-	</div>
-	<div class="stat" routerLink="/control/speed">
-		<span class="amount">{{ paceAmount }}</span>
-		<span class="unit">{{ paceUnit }}</span>
-	</div>
-	<div class="stat" routerLink="/control/speed">
-		<span class="amount">{{ otherSpeedAmount || 0 | number:'1.1-1' }}</span>
-		<span class="unit">{{ otherSpeedUnit }}</span>
-	</div>
+	<div stat
+	     [amount]="speedAmount || 0 | number:'1.1-1'"
+	     [unit]="speedUnit"
+	     class="speed"
+	     routerLink="/control/speed"></div>
+	<div stat
+	     [amount]="websocket.current?.bluetooth?.incline || 0 | number:'1.1-1'"
+	     unit="%"
+	     class="stat" routerLink="/control/incline"></div>
+	<div stat
+	     [amount]="websocket.current?.bluetooth?.cadence || 0 | number:'1.0-0'"
+	     unit="SPM"
+	     class="stat" routerLink="/control/cadence"></div>
+	<div stat
+	     [amount]="paceAmount"
+	     [unit]="paceUnit"
+	     class="stat" routerLink="/control/speed"></div>
+	<div stat
+	     [amount]="otherSpeedAmount || 0 | number:'1.1-1'"
+	     [unit]="otherSpeedUnit"
+	     class="stat" routerLink="/control/speed"></div>
 </div>

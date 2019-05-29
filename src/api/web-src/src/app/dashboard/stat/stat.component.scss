@@ -1,0 +1,42 @@
+.amount {
+	position: absolute;
+	top: 0;
+	right: 5vw;
+	bottom: 0;
+	left: 0;
+	pointer-events: none;
+	display: flex;
+	align-items: center;
+	justify-content: right;
+	text-align: right;
+	font-size: 16vh;
+
+	span {
+		flex: 1;
+	}
+}
+
+.unit {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	display: block;
+	text-align: center;
+	font-size: 3vw;
+	writing-mode: vertical-rl;
+	text-orientation: mixed;
+	pointer-events: none;
+	opacity: 0.5;
+}
+
+:host.speed {
+	.amount {
+		right: 10vw;
+		font-size: 32vh;
+	}
+
+	.unit {
+		font-size: 8vw;
+	}
+}
