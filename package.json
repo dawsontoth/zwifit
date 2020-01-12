@@ -11,19 +11,13 @@
   },
   "license": "MIT",
   "dependencies": {
-    "async": "^3.0.0",
-    "bleno": "^0.5.0",
+    "@abandonware/bleno": "^0.5.1-1",
+    "async": "^3.1.0",
     "death": "^1.1.0",
-    "express": "^4.17.0",
+    "express": "^4.17.1",
     "js-yaml": "^3.13.1",
-    "local-devices": "^2.0.0",
-    "socket.io": "^2.2.0",
-    "websocket": "^1.0.28"
-  },
-  "optionalDependencies": {
-    "xpc-connection": "sandeepmistry/node-xpc-connection#pull/26/head"
-  },
-  "resolutions": {
-    "xpc-connection": "sandeepmistry/node-xpc-connection#pull/26/head"
+    "local-devices": "^3.0.0",
+    "socket.io": "^2.3.0",
+    "websocket": "^1.0.31"
   }
 }

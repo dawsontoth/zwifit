@@ -1,4 +1,4 @@
-let bleno = require('bleno'),
+let bleno = require('@abandonware/bleno'),
 	os = require('os'),
 	onDeath = require('death'),
 	constants = require('../constants'),

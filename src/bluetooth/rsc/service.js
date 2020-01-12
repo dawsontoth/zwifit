@@ -1,5 +1,5 @@
 let util = require('util'),
-	bleno = require('bleno'),
+	bleno = require('@abandonware/bleno'),
 	constants = require('../../constants');
 
 function RSCService() {

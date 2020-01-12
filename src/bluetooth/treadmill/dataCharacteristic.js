@@ -1,5 +1,5 @@
 let util = require('util'),
-	bleno = require('bleno');
+	bleno = require('@abandonware/bleno');
 
 function TreadmillDataCharacteristic() {
 	TreadmillDataCharacteristic.super_.call(this, {

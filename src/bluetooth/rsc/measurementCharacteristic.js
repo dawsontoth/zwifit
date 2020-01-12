@@ -1,5 +1,5 @@
 let util = require('util'),
-	bleno = require('bleno');
+	bleno = require('@abandonware/bleno');
 
 function RSCMeasurementCharacteristic() {
 	RSCMeasurementCharacteristic.super_.call(this, {

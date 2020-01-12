@@ -1,5 +1,5 @@
 let util = require('util'),
-	bleno = require('bleno');
+	bleno = require('@abandonware/bleno');
 
 // 16-bit feature flags
 let feature = Buffer.from('0000000000000000', 'binary');
