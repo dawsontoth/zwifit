@@ -1,19 +1,25 @@
 #!/usr/bin/env node
 let oneTime = require('./src/oneTimeSetup');
+const settings = require('./src/settings');
 
 oneTime.setup(() => {
 
-	let ifit = require('./src/ifit'),
-		api = require('./src/api'),
+	let api = require('./src/api'),
 		bluetooth = require('./src/bluetooth'),
 		onDeath = require('death');
 
 	/*
 	 Initialization.
 	 */
-	api.start();
 	bluetooth.start();
+	let ifit = undefined;
+	if (settings.ble) {
+		ifit = require('./src/ble/ifit');
+	} else {
+		ifit = require('./src/ifit');
+	}
 	ifit.connect();
+	api.start(bluetooth, ifit);
 	onDeath(cleanUp);
 
 	/*

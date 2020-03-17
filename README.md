@@ -1,19 +1,19 @@
 # Zwifit
 
-Welcome to the cryptically named Zwifit! This NodeJS app joins Zwift with treadmills running iFit® with Wi-Fi.
+Welcome to the cryptically named Zwifit! This NodeJS app joins Zwift with treadmills running iFit® with Wi-Fi/Bluetooth.
 
 **Disclaimer:** I'm not associated with either company. Their trademarks and content are their own.
 Heck, they might force me to take this down! But let's enjoy the *run* before they do.
 
 ## How This Works
 
-This software connects to your iFit® treadmill over Wi-Fi to observe its speed and incline. It then
+This software connects to your iFit® treadmill over Wi-Fi/Bluetooth to observe its speed and incline. It then
 broadcasts that information over Bluetooth in a standard protocol that apps like Zwift are able to
 understand.
 
 ## What Treadmills Are Compatible?
 
-At the moment it seems hit or miss on which iFit treadmills with Wi-Fi work, but we are building a spreadsheet
+At the moment it seems hit or miss on which iFit treadmills with Wi-Fi/Bluetooth work, but we are building a spreadsheet
 over at the following URL. Look through that. You may also be interested in the TreadSync app, which has a similar
 goal to this project, but runs in a slightly different way (on iOS devices).
 
@@ -21,10 +21,10 @@ http://bit.ly/TS-compat
 
 ## Minimum Requirements
 
-1. A Wi-Fi connected iFit® treadmill; those treadmills that use Bluetooth instead of Wi-Fi likely will *not* work
+1. A Wi-Fi/Bluetooth connected iFit® treadmill
 2. Zwift running on your favorite device
 3. A Raspberry Pi ZeroW or 3B running this software (this software works on versions of Mac OS X before Mojave, but our Bluetooth dependency is presently borked on Mojave -- Windows requires an external Bluetooth LE dongle be properly configured).
-4. Know the IP address of your treadmill. (I recommend reserving this IP in your router so it doesn't change.)
+4. For Wi-Fi connected treadmills: Know the IP address of your treadmill. (I recommend reserving this IP in your router so it doesn't change.)
 5. You need to be minimally comfortable with a command line / terminal. Or have a nerdy friend!
 
 Raspberry Pi Zero W: https://www.amazon.com/CanaKit-Raspberry-Wireless-Complete-Starter/dp/B072N3X39J/ref=sr_1_4?ie=UTF8&qid=1546535245&sr=8-4&keywords=raspberry+pi+zero+w
@@ -35,15 +35,22 @@ Note: the above is NOT an affiliate link, I don't get anything from you clicking
 
 ### Raspbian (Raspberry Pi)
 
-This software works great on a **Raspberry Pi 3b+** or a **Zero W**. Follow all of these steps on your Pi itself, not on
+This software works great on a **Raspberry Pi 3b+** or a **Raspberry Pi Zero W**. Follow all of these steps on your Pi itself, not on
 your laptop or desktop! The easiest way to do this is to plug a monitor, keyboard and mouse in to your
 Pi. Or, if you've set up SSH, you can `ssh` in to your Pi to follow these steps (hint: this option is in the configuration UI).
 
 1. `sudo apt-get update`
-2. Install the dependencies we need: `sudo apt-get install nodejs npm git bluetooth bluez libbluetooth-dev libudev-dev`
-3. Turn off the system Bluetooth daemon so we can control it: `sudo systemctl disable bluetooth` (to reverse this, change `disable` to `enable`)
-4. Turn the Bluetooth chip back on: `sudo hciconfig hci0 up`
-5. Give NodeJS access to Bluetooth without sudo: ```sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)```
+2. Install the dependencies we need: `sudo apt-get install git bluetooth bluez libbluetooth-dev libudev-dev`
+3. Install NodeJS 13.x
+    1. For **Raspberry Pi 3b+** run `curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -` and `sudo apt install -y nodejs`
+    2. For **Raspberry Pi Zero W** use the [unofficial builds](https://github.com/nodejs/unofficial-builds/), because armv61 is not part of the official builds any more. Download the binaries, run
+        * `mkdir /opt`
+        * `tar -C /opt -xzvf node-v13.8.0-linux-armv61.tar.gz`
+        * `echo "export PATH=\$PATH:/opt/node-v13.8.0-linux-armv6l/bin" >> ~/.bashrc`
+        * exit and re-open terminal to activate changes
+4. Turn off the system Bluetooth daemon so we can control it: `sudo systemctl disable bluetooth` (to reverse this, change `disable` to `enable`)
+5. Turn the Bluetooth chip back on: `sudo hciconfig hci0 up`
+6. Give NodeJS access to Bluetooth without sudo: ``sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)``
 
 ### Windows
 
@@ -70,12 +77,12 @@ With the software requirements out of the way, you can run the following command
 git clone https://github.com/dawsontoth/zwifit.git
 cd zwifit
 npm install
-node app.js
+npm start
 ```
 
 The last command will guide you through connecting to your treadmill. It will save your answers, and
 won't ask you in the future. Your answers are saved in the settings.conf file. To change them, simply
-edit settings.conf (or delete it and run `node app.js` again).
+edit settings.conf (or delete it and run `npm start` again).
 
 ## Automatic Startup
 

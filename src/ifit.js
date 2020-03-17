@@ -19,6 +19,7 @@ let debug = false,
  Public API.
  */
 exports.connect = connect;
+exports.disconnect = () => {};
 exports.current = current;
 
 /*
