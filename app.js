@@ -18,7 +18,11 @@ oneTime.setup(() => {
 	} else {
 		ifit = require('./src/ifit');
 	}
-	ifit.connect();
+	if (process.env['SHUTDOWN_ONDISCONNECT']) {
+		ifit.connect(() => process.exit(1));
+	} else {
+		ifit.connect();
+	}
 	api.start(bluetooth, ifit);
 	onDeath(cleanUp);
 

@@ -13,23 +13,28 @@ let updateValues = undefined;
 let current = {
 	connected: false
 };
+let disconnectedHook = undefined;
+
 exports.current = current;
 
-function connect() {
+function connect(callOnDisconnect) {
+	disconnectedHook = callOnDisconnect;
 	setTimeout(initializeBle, 2000);
 	events.on('controlRequested', controlRequested);
 }
 exports.connect = connect;
 
 function disconnect() {
+	sportsEquipment.disconnect();
+}
+exports.disconnect = disconnect;
+
+function peripheralDisconnected() {
 	console.log('Disonnected :-(');
 	current.connected = false;
 	
 	if (readCurrentTimer) {
 		clearInterval(readCurrentTimer);
-	}
-	if (sportsEquipment) {
-		sportsEquipment.disconnect();
 	}
 	sportsEquipment = undefined;
 	readCurrentTimer = undefined;
@@ -37,9 +42,12 @@ function disconnect() {
 	rx = undefined;
 	tx = undefined;
 	
+	if (disconnectedHook) {
+		disconnectedHook();
+	}
+	
 	noble.startScanning();
 }
-exports.disconnect = disconnect;
 
 function controlRequested(message) {
 	if (! readCurrentTimer) {
@@ -95,7 +103,7 @@ function initializeBle() {
 					+ settings.bleDeviceName);
 			sportsEquipment = peripheral;
 			
-			peripheral.on('disconnect', disconnect);	
+			peripheral.on('disconnect', peripheralDisconnected);
 	
 			setTimeout(exploreSportsEquipment, 1000);
 		}
@@ -123,9 +131,6 @@ function exploreSportsEquipment() {
 			return;
 		}
 		
-		console.log('Connected :-)');
-		current.connected = true;
-
 		request.initTxAndRx(sportsEquipment, (error, newTx, newRx) => {
 			if (error) {
 				console.log(error);
@@ -207,6 +212,8 @@ function writeAndReadMaxAndMin() {
 					...equipmentInformation,
 					...data
 				};
+			console.log('Connected :-)');
+			current.connected = true;
 			readCurrentTimer = setInterval(readCurrentValues, 500);
 		}
 	});
@@ -232,7 +239,6 @@ function readCurrentValues() {
 			updateValues = undefined;
 			
 			const changes = {};
-			
 			let speed;
 			if (data.Metric === settings.metric) {
 				speed = safeParseFloat(data.CurrentKph);
