@@ -86,6 +86,8 @@ edit settings.conf (or delete it and run `npm start` again).
 
 ## Automatic Startup
 
+### Using PM2
+
 Do you want this script to run in the background, even when you restart your computer? There are many
 ways to accomplish this. Personally, I use a program called PM2.
 
@@ -119,6 +121,44 @@ Or update the code and restart:
 git pull
 pm2 restart all
 ```
+
+### Using cron with automatic shutdown
+
+If you use a Raspberry Pi it is crucial to shutdown using
+
+```bash
+sudo poweroff
+```
+
+to avoid damaging the SD card (google for it to find more information). To perform this action after every workout
+in a convenient way there is the run-script `raspberrypi.sh` which can be used.
+
+*Details:* If the environment variable `SHUTDOWN_ONDISCONNECT=1` is set for the Zwifit process then Zwifit stops after
+loosing the Wifi/Bluetooth connection what is usually caused by switching off the treadmill. This situation is
+detected by the run-script `raspberrypi.sh` to shutdown your Raspberry Pi properly.
+
+Since the shutdown procedure requires `sudo` it is advisable to start the shell script using the root cron.
+The run-script switches to the user `pi` for running Zwifit, so the root user is only used for shutdown.
+
+To run Zwifit on startup edit the crontab by using
+
+```bash
+sudo crontab -e
+```
+
+and add this line at the end of the file:
+
+```bash
+@reboot nohup /home/pi/zwifit/raspberrypi.sh
+```
+(where you have to replace the path `/home/pi/zwifit` by the installation path of Zwifit at your system)
+
+*Once applied steps for using the system are:*
+1. Plug in your Raspberry Pi.
+1. Wait until your treadmill enlights the connection led (or the control page http://raspberrypi.local:1337 is available and the ifit symbol is green) which takes 70 seconds using a Raspberry Pi ZeroW.
+1. Do your workouts with Zwift and connect or disconnect to the simulated treadmill as often you need to.
+1. Once you retire simple switch of your treadmill.
+1. About 10 seconds later it is save to plugin off your Raspberry Pi.
 
 ## Calibration
 
