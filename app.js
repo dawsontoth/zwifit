@@ -19,7 +19,7 @@ oneTime.setup(() => {
 		ifit = require('./src/ifit');
 	}
 	if (process.env['SHUTDOWN_ONDISCONNECT']) {
-		ifit.connect(() => process.exit(1));
+		ifit.connect(() => process.exit(99));
 	} else {
 		ifit.connect();
 	}
