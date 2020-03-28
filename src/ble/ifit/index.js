@@ -11,7 +11,8 @@ let equipmentInformation = undefined;
 let readCurrentTimer = undefined;
 let updateValues = undefined;
 let current = {
-	connected: false
+	connected: false,
+	mode: Constants.Mode.Idle
 };
 let disconnectedHook = undefined;
 
@@ -32,6 +33,7 @@ exports.disconnect = disconnect;
 function peripheralDisconnected() {
 	console.log('Disonnected :-(');
 	current.connected = false;
+	current.mode = Constants.Mode.Idle;
 	
 	if (readCurrentTimer) {
 		clearInterval(readCurrentTimer);
@@ -54,33 +56,58 @@ function controlRequested(message) {
 		return;
 	}
 	
-	if (message.mph && !message.kph) {
-		message.kph = message.mph * 0.621;
+	let speed = undefined;
+	if (message.kph) {
+		if (equipmentInformation.Metric) {
+			speed = safeParseFloat(message.kph);
+		} else {
+			speed = safeParseFloat(message.kph) * 0.621;
+		}
+	} else if (message.mph) {
+		if (equipmentInformation.Metric) {
+			speed = safeParseFloat(message.mph) / 0.621;
+		} else {
+			speed = safeParseFloat(message.mph);
+		}
 	}
-	
+
 	const updates = [];
-	if (message.kph !== undefined) {
-		if (message.kph === 0) {
+	if (speed !== undefined) {
+		if (speed <= equipmentInformation.MinKph) {
 			updates.push({
 				characteristic: Constants.Characteristic.Mode,
 				value: Constants.Mode.Pause
 			});
 		} else {
+			if (speed >= equipmentInformation.MaxKph) {
+				speed = equipmentInformation.MaxKph;
+			}
 			updates.push({
 				characteristic: Constants.Characteristic.Kph,
-				value: message.kph
+				value: speed
 			});
 		}
 	}
-	if (message.incline !== undefined) {
+
+	let newIncline = message.incline ? message.incline : message.zwiftIncline;
+	if (newIncline !== undefined) {
+		let incline = safeParseFloat(newIncline);
+		if (incline <= equipmentInformation.MinIncline) {
+			incline = equipmentInformation.MinIncline;
+		} else if (incline >= equipmentInformation.MaxIncline) {
+			incline = equipmentInformation.MaxIncline;
+		}
 		updates.push({
 			characteristic: Constants.Characteristic.Incline,
-			value: message.incline
+			value: incline
 		});
 	}
-	updateValues = updates;
-}
 	
+	if (current.mode === Constants.Mode.Active) {
+		updateValues = updates;
+	}
+}
+
 function prettyPrintedBleCode() {
 	return settings.bleCode.substring(2) + settings.bleCode.substring(0, 2);
 }
@@ -188,13 +215,13 @@ function enable() {
 					...equipmentInformation,
 					...data
 				};
-			writeAndReadMaxAndMin();
+			readMaxAndMin();
 		}
 	}, settings.bleActivation);
 
 }
 
-function writeAndReadMaxAndMin() {
+function readMaxAndMin() {
 
 	const reads = [
 			Constants.Characteristic.MaxIncline,
@@ -202,6 +229,7 @@ function writeAndReadMaxAndMin() {
 			Constants.Characteristic.MaxKph,
 			Constants.Characteristic.MinKph,
 			Constants.Characteristic.MaxPulse,
+			Constants.Characteristic.Metric
 		];
 	request.writeAndRead(equipmentInformation, undefined, reads, tx, rx, function(data, error) {
 		if (error) {
@@ -226,7 +254,7 @@ function readCurrentValues() {
 			Constants.Characteristic.CurrentKph,
 			Constants.Characteristic.CurrentIncline,
 			Constants.Characteristic.Pulse,
-			Constants.Characteristic.Metric,
+			Constants.Characteristic.Mode,
 		];
 	request.writeAndRead(equipmentInformation, updateValues, reads, tx, rx, function(data, error) {
 		if (error) {
@@ -238,11 +266,13 @@ function readCurrentValues() {
 		} else {
 			updateValues = undefined;
 			
+			current.mode = data.Mode;
+			
 			const changes = {};
 			let speed;
-			if (data.Metric === settings.metric) {
+			if (equipmentInformation.Metric === settings.metric) {
 				speed = safeParseFloat(data.CurrentKph);
-			} else if (data.Metric) {
+			} else if (equipmentInformation.Metric) {
 				speed = safeParseFloat(data.CurrentKph) * 0.621;
 			} else {
 				speed = safeParseFloat(data.CurrentKph) / 0.621;
