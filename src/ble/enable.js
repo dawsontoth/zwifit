@@ -247,6 +247,7 @@ function processWrites(writes) {
 			} else {
 				state[id] = write.value;
 			}
+			refreshDisplay = true;
 		}
 	});
 }
@@ -317,6 +318,7 @@ function parseRequest() {
 	let pos = 0;
 	let bitMapLength = currentRequestBuffer[pos++];
 	const writeBits = parseBitMap(pos, bitMapLength);
+	pos += bitMapLength;
 	const writes = [];
 	writeBits.forEach(write => {
 		const characteristic = Constants.Characteristic.fromId(write);
