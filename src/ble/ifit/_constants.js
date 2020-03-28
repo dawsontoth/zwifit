@@ -85,7 +85,7 @@ const Converter = function() {
 		},
 		'Mode': {
 			size: 1,
-			fromBuffer: (buffer, pos) => Mode.fromId(buffer.readUInt8(pos)),
+			fromBuffer: (buffer, pos) => buffer.readUInt8(pos),
 			toBuffer: (buffer, pos, value) => {
 				buffer.writeUInt8(value);
 				return pos + 1;
