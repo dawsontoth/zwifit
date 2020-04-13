@@ -256,6 +256,41 @@ exports.Characteristic = function() {
 			readOnly: true,
 			converter: Converter.FourBytesInteger,
 		},
+		'X1': {
+			id: 34,
+			readOnly: false,
+			converter: Converter.TwoBytesInteger,
+		},
+		'X2': {
+			id: 35,
+			readOnly: false,
+			converter: Converter.TwoBytesInteger,
+		},
+		'X3': {
+			id: 43,
+			readOnly: false,
+			converter: Converter.Double,
+		},
+		'X4': {
+			id: 46,
+			readOnly: false,
+			converter: Converter.TwoBytesInteger,
+		},
+		'X5': {
+			id: 69,
+			readOnly: false,
+			converter: Converter.FourBytesInteger,
+		},
+		'X6': {
+			id: 71,
+			readOnly: false,
+			converter: Converter.TwoBytesInteger,
+		},
+		'X7': {
+			id: 100,
+			readOnly: false,
+			converter: Converter.OneByteInteger,
+		},
 		'fromId': function(id) {
 			for (let [key, value] of Object.entries(characteristics)) {
 				if (value.id === id) {

@@ -4,6 +4,7 @@ const Request = require('./ifit/_request');
 
 const readlineUtils = require('readline-utils');
 const rl = readlineUtils.createInterface();
+
 initKeyboard();
 
 let updateValueCallback = undefined;
@@ -17,6 +18,7 @@ let currentResponseIndex = 0;
 let currentDevice = 2;
 let shutdown = false;
 let refreshDisplay = true;
+let keepAlive = undefined;
 
 const state = {}; // simulated treadmill
 state[Constants.Characteristic.MaxIncline.id] = 4;
@@ -41,10 +43,17 @@ state[Constants.Characteristic.CurrentTime.id] = 0;
 state[Constants.Characteristic.UpTime.id] = 0;
 state[Constants.Characteristic.PausedTime.id] = 0;
 state[Constants.Characteristic.Metric.id] = true;
+state[Constants.Characteristic.X1.id] = 120;
+state[Constants.Characteristic.X2.id] = 120;
+state[Constants.Characteristic.X3.id] = 130;
+state[Constants.Characteristic.X4.id] = 300;
+state[Constants.Characteristic.X5.id] = 10000;
+state[Constants.Characteristic.X6.id] = 180;
+state[Constants.Characteristic.X7.id] = 0;
 
 function discoverActivationCode() {
 	settings.load();
-	if (settings.bleDetails) {
+	if (settings.bleDetails && process.env.SIM) {
 		startSimulator();
 	} else {
 		loadTreadmillDetails();
@@ -56,7 +65,7 @@ function prettyPrintedBleCode() {
 }
 
 function processPeripheralError(peripheral, error, exit = false) {
-	console.log("ERROR: ", error);
+	console.trace("ERROR:", error);
 	if (exit) {
 		process.exit(1);
 	} else {
@@ -97,6 +106,7 @@ function loadTreadmillDetails() {
 			settings.bleDeviceName = deviceName;
 			
 			peripheral.on('disconnect', () => {
+				console.log('Disconnected from treadmill!');
 				process.exit(0);
 			});
 			
@@ -161,44 +171,49 @@ function loadEquipmentInformation(peripheral, tx, rx) {
 	console.log('Retrieving information from treadmill...');
 	const preAuthCalls = {};
 	
-	Request.rawRequest(Request.Commands.EquipmentInformation, undefined, Constants.SportsEquipment.General, tx, rx, (result, error) => {
-			console.log('1/6');
+	Request.getEquipmentInformation(tx, rx, (equipment, error) => {
+		console.log('1/7');
+		if (error) {
+			processPeripheralError(peripheral, error, true);
+		}
+		Request.rawRequest(Request.Commands.EquipmentInformation, undefined, Constants.SportsEquipment.General, tx, rx, (result, error) => {
+			console.log('2/7');
 			if (error) {
 				processPeripheralError(peripheral, error, true);
 			}
-			const equipment = result.header.equipment;
+			const equipmentType = result.header.equipment;
 			preAuthCalls[Request.Commands.EquipmentInformation] = result.response;
 			
-			Request.rawRequest(Request.Commands.SupportedCapabilities, undefined, equipment, tx, rx, (result, error) => {
-				console.log('2/6');
+			Request.rawRequest(Request.Commands.SupportedCapabilities, undefined, equipmentType, tx, rx, (result, error) => {
+				console.log('3/7');
 				if (error) {
 					processPeripheralError(peripheral, error, true);
 				}
 				preAuthCalls[Request.Commands.SupportedCapabilities] = result.response;
 				
-				Request.rawRequest(Request.Commands.SupportedCommands, undefined, equipment, tx, rx, (result, error) => {
-					console.log('3/6');
+				Request.rawRequest(Request.Commands.SupportedCommands, undefined, equipmentType, tx, rx, (result, error) => {
+					console.log('4/7');
 					if (error) {
 						processPeripheralError(peripheral, error, true);
 					}
 					preAuthCalls[Request.Commands.SupportedCommands] = result.response;
 					
-					Request.rawRequest(Request.Commands.EquipmentInformation2, Buffer.alloc(2), equipment, tx, rx, (result, error) => {
-						console.log('4/6');
+					Request.rawRequest(Request.Commands.EquipmentInformation2, Buffer.alloc(2), equipmentType, tx, rx, (result, error) => {
+						console.log('5/7');
 						if (error) {
 							processPeripheralError(peripheral, error, true);
 						}
 						preAuthCalls[Request.Commands.EquipmentInformation2] = result.response;
 						
-						Request.rawRequest(Request.Commands.EquipmentInformation3, Buffer.alloc(2), equipment, tx, rx, (result, error) => {
-							console.log('5/6');
+						Request.rawRequest(Request.Commands.EquipmentInformation3, Buffer.alloc(2), equipmentType, tx, rx, (result, error) => {
+							console.log('6/7');
 							if (error) {
 								processPeripheralError(peripheral, error, true);
 							}
 							preAuthCalls[Request.Commands.EquipmentInformation3] = result.response;
 							
-							Request.rawRequest(Request.Commands.EquipmentInformation4, undefined, equipment, tx, rx, (result, error) => {
-								console.log('6/6');
+							Request.rawRequest(Request.Commands.EquipmentInformation4, undefined, equipmentType, tx, rx, (result, error) => {
+								console.log('7/7');
 								if (error) {
 									processPeripheralError(peripheral, error, true);
 								}
@@ -207,23 +222,26 @@ function loadEquipmentInformation(peripheral, tx, rx) {
 								settings.bleDetails = preAuthCalls;
 								settings.save();
 								
-								console.log('Done. Now switch off your treadmill!');
-								console.log('Afterwards restart this program for further instructions...');
-
-								peripheral.disconnect();
+								startSimulator({
+									peripheral,
+									tx,
+									rx,
+									equipment
+								})
 							});
 						});
 					});
 				});
 			});
 		});
-
+	});
+	
 }
 
-function processWriteAndRead() {
+function processWriteAndRead(currentCommand) {
 	const { writes, reads } = parseRequest();
 	processWrites(writes);
-	const response = buildReadsResponse(reads);
+	const response = buildReadsResponse(currentCommand, reads);
 	const result = buildResponseParts(response);
 	return result;
 }
@@ -232,6 +250,7 @@ function processWrites(writes) {
 	if (!writes) {
 		return;
 	}
+
 	writes.forEach(write => {
 		if (! write.characteristic.readOnly) {
 			const id = write.characteristic.id;
@@ -268,24 +287,28 @@ function buildResponseParts(response) {
 		parts[pos] = part.toString('hex');
 		++pos;
 	}
-	const header = Buffer.alloc(4);
-	header.writeUInt8(0xfe, 0);
-	header.writeUInt8(currentDevice, 1);
-	header.writeUInt8(response.length, 2);
-	header.writeUInt8(parts.length, 3);
-	parts[0] = header.toString('hex');
+	parts[0] = buildHeaderPart(response.length, parts.length);
 	return parts;
 }
 
-function buildReadsResponse(reads) {
+function buildHeaderPart(length, numberOfParts) {
+	const header = Buffer.alloc(4);
+	header.writeUInt8(0xfe, 0);
+	header.writeUInt8(currentDevice, 1);
+	header.writeUInt8(length, 2);
+	header.writeUInt8(numberOfParts, 3);
+	return header.toString('hex');
+} 
+
+function buildReadsResponse(currentCommand, reads) {
 	const values = reads.map(read => {
-		const value = state[read];
 		const characteristic = Constants.Characteristic.fromId(read);
 		if (!characteristic || !characteristic.converter) {
 			console.log('Error: ', read);
 			return Buffer.alloc(0);
 		}
 		const buffer = Buffer.alloc(characteristic.converter.size);
+		const value = state[read]; 
 		characteristic.converter.toBuffer(buffer, 0, value);
 		return buffer;
 	});
@@ -356,7 +379,7 @@ function parseBitMap(pos, length) {
 	return result;
 }
 
-function startSimulator() {
+function startSimulator(pt = false) {
 
 	process.env['BLENO_DEVICE_NAME'] = settings.bleDeviceName;
 	
@@ -364,15 +387,13 @@ function startSimulator() {
 	const PrimaryService = bleno.PrimaryService;
 	const Characteristic = bleno.Characteristic;
 	
-	console.log('Be sure your treadmill is switched off!');
-	
 	const onNotify = () => {
 		if (!currentResponse || shutdown) {
 			return;
 		}
 
 		const message = currentResponse[currentResponseIndex++];
-		
+
 		if (currentResponseIndex === currentResponse.length) {
 			currentCommand = undefined;
 			currentRequestLength = -1;
@@ -395,15 +416,16 @@ function startSimulator() {
 			buffer = Buffer.alloc(bufferSize);
 			data.copy(buffer, 0, offset, offset + bufferSize);
 		}
+		if (process.env.DEBUG) console.log('Part of request:', buffer);
 		
 		if (buffer[0] === Request.MessageIndex.Header) {
 			currentRequestLength = buffer[2];
-			currentDevice = buffer[3];
 		} else {  // next parts of the request
 			if (!currentRequestBuffer) {
 				currentRequestBuffer = Buffer.alloc(currentRequestLength - 8);
 				buffer.copy(currentRequestBuffer, 0, 9, buffer.length);
 				currentRequestOffset += buffer.length - 9;
+				currentDevice = buffer[6];
 			} else {
 				const contentLength = buffer[1] + currentRequestOffset >= currentRequestBuffer.length
 						? currentRequestBuffer.length - currentRequestOffset : buffer[1];
@@ -414,36 +436,57 @@ function startSimulator() {
 		if (buffer[0] === 0x00) { // first part of the request
 			currentCommand = buffer[8];
 		}
-		
+
 		callback(bleno.Characteristic.RESULT_SUCCESS);
 
 		if (buffer[0] === Request.MessageIndex.Eof) {
 			if (! currentCommand) {
 				currentCommand = buffer[8];
 			}
-			currentResponse = settings.bleDetails[currentCommand];
-			if (currentCommand === Request.Commands.Enable) {
-				if (!currentResponse) {
+			const payload = currentRequestBuffer && currentRequestBuffer.length ? currentRequestBuffer : undefined;
+			const args = payload ? '#' + payload.toString('hex') : '';
+			const key = `${currentCommand}${args}`;
+			currentResponse = settings.bleDetails[key];
+			if (process.env.DEBUG) console.log('Stored response:', key, ' -> ', currentResponse);
+			if (pt) {
+				if (currentCommand === Request.Commands.Enable) {
 					activationCode = currentRequestBuffer.toString('hex');
+					
 					console.log('Got activation code: ' + activationCode);
 					console.log('');
 					console.log('Now kill the app. It is not needed any more.');
 					console.log('From now on you only need to start Zwifit by using \"npm start\"');
-					bleno.disconnect();
+
 					settings.bleActivation = activationCode;
 					settings.save();
-					setTimeout(() => { process.exit(0) }, 500);
+				}
+				
+				Request.rawRequest(currentCommand, payload, currentDevice, pt.tx, pt.rx, (result, error) => {
+					if (error) {
+						processPeripheralError(pt.peripheral, error, true);
+					}
+					if (process.env.DEBUG) console.log('PT-Response:', result);
+					currentResponse = result.response;
+					
+					settings.bleDetails[key] = currentResponse;
+					settings.save();
+					
+					currentResponseIndex = 0;
+					onNotify();
+				});
+			} else {
+				if (currentResponse) {
+					currentResponseIndex = 0;
+					setImmediate(onNotify);
+				} else if (currentCommand === Request.Commands.WriteAndRead) {
+					currentResponse = processWriteAndRead(currentCommand);
+					currentResponseIndex = 0;
+					setImmediate(onNotify);
 				} else {
+					currentResponse = [ buildHeaderPart(0, 1) ];
 					currentResponseIndex = 0;
 					setImmediate(onNotify);
 				}
-			} else if (currentCommand === Request.Commands.WriteAndRead) {
-				currentResponse = processWriteAndRead();
-				currentResponseIndex = 0;
-				setImmediate(onNotify);
-			} else {
-				currentResponseIndex = 0;
-				setImmediate(onNotify);
 			}
 			currentCommand = undefined;
 		}
@@ -451,7 +494,7 @@ function startSimulator() {
 	
 	const onSubscribe = (newMaxValueSize, newUpdateValueCallback) => {
 		updateValueCallback = newUpdateValueCallback;
-		maxValueSize = newMaxValueSize;
+		maxValueSize = 20;
 	};
 	
 	const onUnsubscribe = () => {
@@ -507,7 +550,7 @@ function startSimulator() {
 			console.log('ERROR: ', error);
 			process.exit(0);
 		}
-		if (settings.bleDetails[Request.Commands.Enable]) {
+		if (process.env.SIM) {
 			setInterval(simulateBehavior, 500);
 		} else {
 			console.log('Now start your treadmill\'s manufactor\'s app.');
@@ -515,19 +558,41 @@ function startSimulator() {
 			console.log('You will be prompted to connect to your treadmill having the code \''
 					+ prettyPrintedBleCode() + '\'.');
 			console.log('Choose this equipment and wait...');
+			
+			keepAlive = setInterval(() => doKeepAliveRequest(pt), 1000);
 		}
 	});
 	
 	bleno.on('accept', (clientAddress) => {
 		console.log('Connected to the app...');
+		clearInterval(keepAlive);
+		keepAlive = undefined;
 		bleno.stopAdvertising();
 	});
 	
 	bleno.on('disconnect', (clientAddress) => {
 		console.log('Disconnected from the app.');
-		bleno.startAdvertisingWithEIRData(
-				Buffer.from(settings.bleAdvertisingData, 'hex'),
-				Buffer.from(settings.bleScanData, 'hex'));
+		if (settings.bleActivation) {
+			process.exit(0);
+		} else {
+			bleno.startAdvertisingWithEIRData(
+					Buffer.from(settings.bleAdvertisingData, 'hex'),
+					Buffer.from(settings.bleScanData, 'hex'));
+		}
+	});
+	
+}
+
+function doKeepAliveRequest(pt) {
+	
+	const reads = [
+		Constants.Characteristic.MaxIncline,
+	];
+	Request.writeAndRead(pt.equipment, undefined, reads, pt.tx, pt.rx, function(data, error) {
+		if (error) {
+			console.log('Failed to read max and mins:', error);
+			pt.peripheral.disconnect();
+		}
 	});
 	
 }
@@ -539,7 +604,7 @@ function buildAdvertisingData(serviceUuids) {
 
 	if (serviceUuids && serviceUuids.length) {
 		for (i = 0; i < serviceUuids.length; i++) {
-			var serviceUuid = new Buffer(serviceUuids[i].match(/.{1,2}/g).reverse().join(''), 'hex');
+			var serviceUuid = Buffer.from(serviceUuids[i].match(/.{1,2}/g).reverse().join(''), 'hex');
 
 			if (serviceUuid.length === 2) {
 				serviceUuids16bit.push(serviceUuid);
@@ -559,7 +624,7 @@ function buildAdvertisingData(serviceUuids) {
 		advertisementDataLength += 2 + 16 * serviceUuids128bit.length;
 	}
 
-	let advertisementData = new Buffer(advertisementDataLength);
+	let advertisementData = Buffer.alloc(advertisementDataLength);
 
 	// flags
 	advertisementData.writeUInt8(2, 0);
@@ -593,7 +658,7 @@ function buildAdvertisingData(serviceUuids) {
 function buildScanData(localName, manufacturerData) {
 	
 	const scanDataLength = manufacturerData.length + localName.length + 4;
-	const scanData = new Buffer(scanDataLength);
+	const scanData = Buffer.alloc(scanDataLength);
 	let pos = scanData.writeUInt8(localName.length + 1);
 	pos = scanData.writeUInt8(0x09, pos);
 	var nameBuffer = new Buffer(localName);
