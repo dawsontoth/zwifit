@@ -79,12 +79,14 @@ function onStateChanged(state) {
 
 function onAccepted(clientAddress) {
 	if (current.clients.indexOf(clientAddress) === -1) {
+		console.log("Connected to Zwift", clientAddress);
 		current.clients.push(clientAddress);
 	}
 }
 
 function onDisconnected(clientAddress) {
 	if (current.clients.indexOf(clientAddress) >= 0) {
+		console.log("Disconnceted from Zwift", clientAddress);
 		current.clients.splice(current.clients.indexOf(clientAddress), 1);
 	}
 }
