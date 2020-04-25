@@ -13,7 +13,9 @@ oneTime.setup(() => {
 	 */
 	bluetooth.start();
 	let ifit = undefined;
-	if (settings.ble) {
+	if(settings.sim) {
+		ifit = require('./src/sim');
+	} else if (settings.ble) {
 		ifit = require('./src/ble/ifit');
 	} else {
 		ifit = require('./src/ifit');
