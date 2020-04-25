@@ -181,6 +181,8 @@ If you have a monitor or touch screen connected to your Pi, you can run it in Ki
 
 Zwift does not send the current gain of your running session to the treadmill. However, you can use the software [zwifit-incline-tracker](https://github.com/RasPelikan/zwifit-incline-tracker) to achieve this regardless. These automatic updates are only processed if the treadmill is in the active status.
 
+For indoor bikes running Bluetooth, Zwift sends the gradient which will is passed onto the indoor bike via iFit Bluetooth. Note that Zwift has a slider setting for gradient, by default 50%. This means if your cycling at 4%, by default, your indoor bike will be asked to move to 2%. This slider setting at Max will make Zwift grade and indoor bike incline be equal.
+
 ## Contributing
 
 Pull requests are welcome! Do your best to emulate the code around what you are editing.
