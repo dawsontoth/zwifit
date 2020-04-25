@@ -80,7 +80,7 @@ function loadTreadmillDetails() {
 	// start scanning for sports equiments
 	noble.on('stateChange', (state) => {
 		if (state === 'poweredOn') {
-			console.log('Turn on your treadmill!');
+			console.log('Turn on your fitness machine!');
 			noble.startScanning();
 		} else {
 			noble.stopScanning();
@@ -96,7 +96,7 @@ function loadTreadmillDetails() {
 				&& peripheral.advertisement.manufacturerData.toString('hex')
 						.toLowerCase().endsWith('dd' + settings.bleCode)) {
 			const deviceName = peripheral.advertisement.localName;
-			console.log('Found treadmill name with code ' + prettyPrintedBleCode()
+			console.log('Found fitness machine name with code ' + prettyPrintedBleCode()
 					+ ' and name ' + deviceName);
 			
 			noble.stopScanning();
@@ -106,19 +106,19 @@ function loadTreadmillDetails() {
 			settings.bleDeviceName = deviceName;
 			
 			peripheral.on('disconnect', () => {
-				console.log('Disconnected from treadmill!');
+				console.log('Disconnected from fitness machine!');
 				process.exit(0);
 			});
 			
 			peripheral.connect((error) => {
-				console.log('Connected to treadmill...');
+				console.log('Connected to fitness machine...');
 				if (error) {
 					processPeripheralError(peripheral, error, true);
 					return;
 				}
 				
 				peripheral.discoverAllServicesAndCharacteristics((error, services, characteristics) => {
-					console.log('Discovered all treadmill services...');
+					console.log('Discovered all fitness machine services...');
 					
 					if (error) {
 						processPeripheralError(peripheral, error);
@@ -168,7 +168,7 @@ function loadTreadmillDetails() {
 
 function loadEquipmentInformation(peripheral, tx, rx) {
 
-	console.log('Retrieving information from treadmill...');
+	console.log('Retrieving information from fitness machine...');
 	const preAuthCalls = {};
 	
 	Request.getEquipmentInformation(tx, rx, (equipment, error) => {
@@ -553,9 +553,9 @@ function startSimulator(pt = false) {
 		if (process.env.SIM) {
 			setInterval(simulateBehavior, 500);
 		} else {
-			console.log('Now start your treadmill\'s manufactor\'s app.');
+			console.log('Now start your fitness machine\'s manufactor\'s app.');
 			console.log('There may be an email registration.');
-			console.log('You will be prompted to connect to your treadmill having the code \''
+			console.log('You will be prompted to connect to your fitness machine having the code \''
 					+ prettyPrintedBleCode() + '\'.');
 			console.log('Choose this equipment and wait...');
 			

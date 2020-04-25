@@ -11,7 +11,8 @@ exports.setup = setup;
 /*
  State.
  */
-let readlineInterface;
+let readlineInterface,
+	machineType = 'treadmill';
 
 /*
  Implementation.
@@ -25,6 +26,9 @@ async function setup(ready) {
 	let goAhead = true;
 	if (settings.load()) {
 		if (settings.ble && !settings.bleActivation) {
+			if(settings.bike) {
+				machineType = 'Indoor Bike';
+			}
 			showBleActivationMessage();
 			goAhead = false;
 		}
@@ -44,16 +48,23 @@ async function setup(ready) {
 		});
 
 		settings.metric = isYes(await question('Do you want to use metric units (KPH)? (Answer Y or N)'));
-
-		settings.ble = await isYes(await question('Is your treadmill Bluetooth (Y) or WIFI (N) based? (Answer Y or N)'));
+		settings.bike = await isYes(await question('Is your fitness machine a bike (Y) or treadmill (N)? (Answer Y or N)'));
+		if(settings.bike) {
+			machineType = 'Indoor Bike';
+		}
+		settings.ble = await isYes(await question('Is your '+machineType+' Bluetooth (Y) or WIFI (N) based? (Answer Y or N)'));
 		if (settings.ble) {
-			settings.bleCode = await question('Switch on your treadmill, press the connect button and enter the code shown on the display');
+			settings.bleCode = await question('Switch on your '+machineType+', press the connect button and enter the code shown on the display');
 			if (settings.bleCode.length != 4) {
 				console.log('The code must be of exact 4 characters!');
 				return false;
 			}
 			settings.bleCode = settings.bleCode.substring(2, 4) + settings.bleCode.substring(0, 2);
 			showBleActivationMessage();
+			return false;
+		} else if(settings.bike) {
+			console.log('WIFI bike is not supported, sorry, exiting');
+			setTimeout(() => process.exit(0), 500);
 			return false;
 		} else {
 			settings.ip = await question('What is the IP of your treadmill? (Leave blank to search)');
@@ -70,7 +81,7 @@ function finalize() {
 
 function showBleActivationMessage() {
 	console.log('Now you need to call \"npm run enable-ble\" to get access to your');
-	console.log('Bluetooth equipment by using the treadmill\'s manufactor\'s app...');
+	console.log('Bluetooth equipment by using the '+machineType+'\'s manufactor\'s app...');
 	finalize();
 	setTimeout(() => process.exit(0), 500);
 }

@@ -50,6 +50,8 @@ function getBitMap(equipmentInformation, values) {
 			const mask = 1 << bit;
 			byte |= mask;
 			payload[pos] = byte;
+		} else {
+			console.log("Characteristic not supported: "+id);
 		}
 	});
 	for (let i = 1; i < payload[0]; ++i) {
@@ -654,6 +656,7 @@ function writeRequestAndGatherResponse(request, tx, rx, callback) {
 					reportError('checksum invalid');
 				}
 			}
+			if (process.env.DEBUG) console.log("Received "+response.buffer.length+" bytes of data");
 			callback(response.buffer, null, raw);
 		} else {
 			const { error } = fillResponse(response.buffer, response.upcomingMessages, message);
@@ -740,6 +743,7 @@ const parseEquipmentInformationResponse = function(response) {
 		for (let bit = 0; bit < 8; ++bit) {
 			const mask = 1 << bit;
 			if (byte & mask) {
+				if (process.env.DEBUG) console.log("Found Equipment Characteristic: "+id); // TM Insert this and found characteristics available on TdF bike 
 				const id = offset * 8 + bit;
 				const characteristic = Constants.Characteristic.fromId(id);
 				if (characteristic) {
@@ -765,6 +769,7 @@ const parseFeaturesResponse = function(response) {
 	let count = response.readUInt8(pos++);
 	const capabilities = [];
 	while (count) {
+		if (process.env.DEBUG) console.log("Found capability: "+response.readUInt8(pos));
 		capabilities.push(response.readUInt8(pos++));
 		--count;
 	}
@@ -794,6 +799,7 @@ const parseWriteAndReadResponse = function(equipmentInformation, response, reads
 			const converter = characteristic.converter;
 			if (converter) {
 				result[characteristic.name] = converter.fromBuffer(response, pos);
+				if (process.env.DEBUG) console.log("Read value "+characteristic.name+"="+converter.fromBuffer(response, pos));
 				pos += converter.size;
 			}
 		}

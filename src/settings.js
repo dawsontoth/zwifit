@@ -3,11 +3,13 @@ let yaml = require('js-yaml'),
 	path = require('path');
 
 /*
- Public API.
+ Settings objects public variables
  */
 exports.version = 1;
 exports.metric = false;
 exports.ip = null;
+exports.sim = false;
+exports.bike = false;
 exports.lastIP = null;
 exports.speedOffset = 0;
 exports.speedMultiplier = 1;
@@ -21,21 +23,23 @@ exports.bleServices = null;
 exports.bleAdvertisingData = null;
 exports.bleScanData = null;
 
+/*
+ Settings object public functions
+ */
 exports.load = load;
 exports.toJSON = toJSON;
 exports.fromJSON = fromJSON;
 exports.save = save;
 
 /*
- Initialization.
+ Initialization of private variables
  */
 let minimumVersion = 1,
 	ref = path.join(__dirname, '..', 'settings.conf');
 
 /*
- Implementation.
+ Load the settings from file
  */
-
 function load() {
 	if (!fs.existsSync(ref)) {
 		return false;
@@ -58,6 +62,16 @@ function load() {
 	}
 }
 
+/*
+ Save the settings to file
+ */
+function save() {
+	fs.writeFile(ref, yaml.safeDump(toJSON()), 'UTF-8', () => {});
+}
+
+/*
+ Convert the setting values into a JSON key->value array
+ */
 function toJSON() {
 	let settings = {};
 	for (let key in exports) {
@@ -68,14 +82,13 @@ function toJSON() {
 	return settings;
 }
 
+/*
+ Restore the given json key->value array into the settings values
+ */
 function fromJSON(json) {
 	for (let key in json) {
 		if (json.hasOwnProperty(key)) {
 			exports[key] = json[key];
 		}
 	}
-}
-
-function save() {
-	fs.writeFile(ref, yaml.safeDump(toJSON()), 'UTF-8', () => {});
 }

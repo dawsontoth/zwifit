@@ -42,7 +42,7 @@ export class ControlComponent implements OnInit, OnDestroy {
 					this.unit = '%';
 					break;
 				case 'cadence':
-					this.unit = ' SPM';
+					this.unit = ' RPM'; // TODO - Quick fix, change to RPM for bike, needs to be an option
 					break;
 			}
 		});
