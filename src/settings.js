@@ -13,6 +13,13 @@ exports.speedOffset = 0;
 exports.speedMultiplier = 1;
 exports.broadcastRSC = false;
 exports.broadcastFTMS = true;
+exports.ble = false;
+exports.bleCode = null;
+exports.bleActivation = null;
+exports.bleDetails = null;
+exports.bleServices = null;
+exports.bleAdvertisingData = null;
+exports.bleScanData = null;
 
 exports.load = load;
 exports.toJSON = toJSON;

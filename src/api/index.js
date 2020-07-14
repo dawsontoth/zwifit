@@ -7,12 +7,10 @@ let express = require('express'),
 	io = require('socket.io')(server),
 	events = require('../lib/events');
 
-exports.start = () => {
+exports.start = (bluetooth, ifit) => {
 	app.use(express.static(path.join(__dirname, 'web-dist')));
 
-	let bluetooth = require('../bluetooth'),
-		ifit = require('../ifit'),
-		current = { bluetooth: bluetooth.current, ifit: ifit.current };
+	let current = { bluetooth: bluetooth.current, ifit: ifit.current };
 
 	io.on('connection', socket => {
 		socket.on('message', str => {

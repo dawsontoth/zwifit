@@ -1,24 +1,49 @@
 {
   "name": "zwifit",
   "author": "Dawson Toth",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "repository": {
     "type": "git",
     "url": "ssh://github.com:dawsontoth/zwifit.git"
   },
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "enable-ble": "node src/ble/enable.js",
+    "test": "jest"
   },
   "license": "MIT",
   "dependencies": {
     "async": "^3.0.0",
-    "bleno": "^0.5.0",
+    "bleno": "npm:@abandonware/bleno@^0.5.1-1",
+    "bluetooth-hci-socket": "npm:@abandonware/bluetooth-hci-socket@^0.5.3-4",
     "death": "^1.1.0",
     "express": "^4.17.0",
     "js-yaml": "^3.13.1",
     "local-devices": "^2.0.0",
+    "noble": "npm:@abandonware/noble@^1.9.2-8",
+    "readline-utils": "^2.2.3",
     "socket.io": "^2.2.0",
     "websocket": "^1.0.28"
+  },
+  "devDependencies": {
+    "jest": "^25.1.0",
+    "rewire": "^4.0.1"
+  },
+  "jest": {
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/src/"
+    ],
+    "modulePaths": [
+      "<rootDir>/src"
+    ],
+    "moduleDirectories": [
+      "node_modules"
+    ]
   },
   "optionalDependencies": {
     "xpc-connection": "sandeepmistry/node-xpc-connection#pull/26/head"

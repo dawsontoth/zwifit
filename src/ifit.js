@@ -14,18 +14,21 @@ let debug = false,
 	client,
 	lastConnection,
 	ensureConnectedID;
+let disconnectedHook = undefined;
 
 /*
  Public API.
  */
 exports.connect = connect;
+exports.disconnect = () => {};
 exports.current = current;
 
 /*
  Implementation.
  */
 
-function connect() {
+function connect(callOnDisconnect) {
+	disconnectedHook = callOnDisconnect;
 	client = new WebSocketClient();
 	client.on('connectFailed', onConnectFailed);
 	client.on('connect', onConnected);
@@ -81,8 +84,17 @@ function ensureConnected() {
 }
 
 function onConnectFailed(error) {
+	let runHook = undefined;
+	if (current.connected) {
+		runHook = disconnectedHook;
+	}
+
 	current.connected = false;
 	console.error('iFit: Connect Error: ' + error.toString());
+
+	if (runHook) {
+		runHook();
+	}
 }
 
 function onConnected(connection) {
@@ -191,8 +203,17 @@ function onError(error) {
 }
 
 function onClose() {
+	let runHook = undefined;
+	if (current.connected) {
+		runHook = disconnectedHook;
+	}
+
 	current.connected = false;
 	console.log('iFit: Connection Closed');
+
+	if (runHook) {
+		runHook();
+	}
 }
 
 function cleanUp() {
