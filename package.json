@@ -19,7 +19,7 @@
     "death": "^1.1.0",
     "express": "^4.17.0",
     "js-yaml": "^3.13.1",
-    "local-devices": "^2.0.0",
+    "local-devices": "^3.0.0",
     "noble": "npm:@abandonware/noble@^1.9.2-8",
     "readline-utils": "^2.2.3",
     "socket.io": "^2.2.0",
