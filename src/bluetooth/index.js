@@ -5,15 +5,20 @@ let bleno = require('bleno'),
 	settings = require('../settings'),
 	events = require('../lib/events'),
 	utils = require('../lib/utils'),
-	rscService = settings.broadcastRSC && new (require('./rsc/service'))(),
+	rscService = !settings.bike && settings.broadcastRSC && new (require('./rsc/service'))(),
 	rscCalculator = require('./rsc/calculator'),
-	treadmillService = settings.broadcastFTMS && new (require('./treadmill/service'))(),
-	treadmillCalculator = require('./treadmill/calculator');
+	treadmillService = !settings.bike && settings.broadcastFTMS && new (require('./treadmill/service'))(),
+	treadmillCalculator = require('./treadmill/calculator'),
+	ftmibService = settings.bike && new (require('./ftmib/service'))(),
+	ftmibCalculator = require('./ftmib/calculator');
 
 /*
  State.
  */
 let updateFPS = 5,
+	UPDATE_GRADE_MS = 30000,  // Update the gradient at this interval
+	UPDATE_GRADE_PER = 1.5,	  // If gradient changes by more than this value, update straight away
+	grade = 0,
 	lastTrackedAt = null,
 	idle = true,
 	idleSecondsCount = 0,
@@ -26,21 +31,25 @@ let updateFPS = 5,
 		mph: 0,
 		kph: 0,
 		incline: 0,
-		cadence: 0
+		cadence: 0,
+		power: 0
 	},
 	ramps = {
 		hr: 0,
 		mph: 0,
 		kph: 0,
 		incline: 0,
-		cadence: 0
+		cadence: 0,
+		power: 0
 	},
 	services = [
 		rscService,
-		treadmillService
+		treadmillService,
+		ftmibService
 	].filter(s => s),
 	serviceUUIDs = services.map(s => s.uuid),
-	updateID;
+	updateID,
+	gradeID;
 
 
 /*
@@ -60,6 +69,7 @@ function start() {
 	bleno.on('disconnect', onDisconnected);
 	events.on('changeReceived', onChangeReceived);
 	updateID = setInterval(emitUpdates, constants.UPDATE_INTERVAL_MILLISECONDS / updateFPS);
+	gradeID = setInterval(updateGradient, UPDATE_GRADE_MS);
 	onDeath(cleanUp);
 	console.log('Bluetooth: Server started.');
 }
@@ -117,6 +127,9 @@ function onChangeReceived(data) {
 	if (data.incline !== undefined) {
 		current.incline = data.incline;
 	}
+	if (data.power !== undefined) {
+		current.power = data.power;
+	}
 }
 
 function emitUpdates() {
@@ -125,7 +138,8 @@ function emitUpdates() {
 	let kph = rampCurrentValue('kph'),
 		hr = rampCurrentValue('hr'),
 		cadence = rampCurrentValue('cadence'),
-		incline = rampCurrentValue('incline');
+		incline = rampCurrentValue('incline'),
+		power = rampCurrentValue('power');
 	if (rscService && rscService.measurement.updateValueCallback) {
 		rscService.measurement.updateValueCallback(rscCalculator.calculateBuffer({
 			kph: kph,
@@ -139,6 +153,28 @@ function emitUpdates() {
 			incline: incline
 		}));
 	}
+	if (ftmibService && ftmibService.measurement.updateValueCallback) {
+		ftmibService.measurement.updateValueCallback(ftmibCalculator.calculateBuffer({
+			kph: kph,
+			cadence: cadence,
+			power: power,
+			incline: incline
+		}));
+		
+		// The gradient is updated automatically every UPDATE_GRADE_MS, also update if the
+		// grade changes by more than UPDATE_GRADE_PER
+		if(Math.abs(ftmibService.controlpoint.getSimulatedGrade()-grade) >= UPDATE_GRADE_PER) {
+			if (process.env.DEBUG) console.log('Percentage diff detected');
+			updateGradient();
+		}
+	}
+}
+
+function updateGradient() {
+	if (process.env.DEBUG) console.log('Update grade '+ftmibService.controlpoint.getSimulatedGrade()+'%; old '+grade);
+	grade = ftmibService.controlpoint.getSimulatedGrade();
+	let message = {'simGrade' : grade};
+	events.fire('controlRequested', message);
 }
 
 function calculateTimeAndDistance() {
@@ -170,7 +206,7 @@ function rampCurrentValue(key) {
 	let currentValue = current[key],
 		rampedValue = ramps[key],
 		delta = currentValue - rampedValue,
-		step = 0.2 / updateFPS;
+		step = 1.0 / updateFPS;
 	// Are we within one step of the new value?
 	if (Math.abs(delta) <= step) {
 		ramps[key] = current[key];
@@ -183,6 +219,7 @@ function rampCurrentValue(key) {
 
 function cleanUp() {
 	clearInterval(updateID);
+	clearInterval(gradeID);
 	if (os.platform() !== 'darwin') {
 		// Bleno doesn't support "disconnect" on OS X, for some reason.
 		try {

@@ -69,9 +69,9 @@ const Converter = function() {
 	const converters = {
 		'Double': {
 			size: 2,
-			fromBuffer: (buffer, pos) => (buffer.readUInt16LE(pos) / 100),
+			fromBuffer: (buffer, pos) => (buffer.readInt16LE(pos) / 100), // Change to signed for TdF bike negative incline
 			toBuffer: (buffer, pos, value) => {
-				buffer.writeUInt16LE(Math.round(value * 100), pos);
+				buffer.writeInt16LE(Math.round(value * 100), pos); // Change to signed for TdF bike negative incline
 				return pos + 2;
 			},
 		},
@@ -156,15 +156,35 @@ exports.Characteristic = function() {
 			readOnly: false,
 			converter: Converter.Double,
 		},
+		'Resistance': { // 2 bytes; 0=1 ; 6000=26; 240 counts per gear with no incline. Also includes incline
+			id: 2,
+			readOnly: false,
+			converter: Converter.TwoBytesInteger,
+		},
+		'CurrentPower': { // Power in watts as 2 bytes integer
+			id: 3,
+			readOnly: true,
+			converter: Converter.TwoBytesInteger,
+		},
 		'CurrentDistance': {
 			id: 4,
 			readOnly: true,
 			converter: Converter.FourBytesInteger,
 		},
+		'CurrentCadence': { // Cadence in RPM as 2 bytes integer
+			id: 5,
+			readOnly: true,
+			converter: Converter.TwoBytesInteger,
+		},
 		'Distance': {
 			id: 6,
 			readOnly: true,
 			converter: Converter.FourBytesInteger,
+		},
+		'Unknown7': { // 14 bytes
+			id: 7,
+			readOnly: true,
+			converter: Converter.Double,
 		},
 		'Volume': {
 			id: 9,
@@ -191,6 +211,16 @@ exports.Characteristic = function() {
 			readOnly: true,
 			converter: Converter.Calories,
 		},
+		'Unknown14': { // TBC ?? 3 bytes
+			id: 14,
+			readOnly: true,
+			converter: Converter.Double,
+		},
+		'Unknown15': { // TBC ?? 2 bytes - always seems to be zero
+			id: 15,
+			readOnly: true,
+			converter: Converter.TwoBytesInteger,
+		},
 		'CurrentKph': {
 			id: 16,
 			readOnly: true,
@@ -201,15 +231,50 @@ exports.Characteristic = function() {
 			readOnly: true,
 			converter: Converter.Double,
 		},
+		'Unknown18': { // 2 bytes - always seems to be zero
+			id: 18,
+			readOnly: true,
+			converter: Converter.TwoBytesInteger,
+		},
+		'Unknown19': { // 4 bytes - always seems to be zero
+			id: 19,
+			readOnly: true,
+			converter: Converter.FourBytesInteger,
+		},
 		'CurrentTime': {
 			id: 20,
 			readOnly: true,
 			converter: Converter.FourBytesInteger,
 		},
-		'CurrentCalories': {
+		'CurrentCalories': { // 4 bytes
 			id: 21,
 			readOnly: true,
 			converter: Converter.Calories,
+		},
+		'Unknown22': { // 4 bytes
+			id: 22,
+			readOnly: true,
+			converter: Converter.FourBytesInteger,
+		},
+		'Unknown23': { // 4 bytes
+			id: 23,
+			readOnly: true,
+			converter: Converter.FourBytesInteger,
+		},
+		'Unknown24': { // 1 bytes
+			id: 24,
+			readOnly: true,
+			converter: Converter.OneByteInteger,
+		},
+		'Unknown25': { // 2 bytes
+			id: 25,
+			readOnly: true,
+			converter: Converter.Double,
+		},
+		'Unknown26': { // 8 bytes
+			id: 26,
+			readOnly: true,
+			converter: Converter.FourBytesInteger,
 		},
 		'MaxIncline': {
 			id: 27,

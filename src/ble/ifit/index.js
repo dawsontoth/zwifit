@@ -89,7 +89,7 @@ function controlRequested(message) {
 		}
 	}
 
-	let newIncline = message.incline ? message.incline : message.zwiftIncline;
+	let newIncline = message.incline ? message.incline : message.simGrade;
 	if (newIncline !== undefined) {
 		let incline = safeParseFloat(newIncline);
 		if (incline <= equipmentInformation.MinIncline) {
@@ -101,9 +101,11 @@ function controlRequested(message) {
 			characteristic: Constants.Characteristic.Incline,
 			value: incline
 		});
+		if (process.env.DEBUG) console.log("Write new incline: "+incline);
 	}
 	
-	if (current.mode === Constants.Mode.Active) {
+	// Update only when active or always when a bike
+	if (current.mode === Constants.Mode.Active || settings.bike) {
 		updateValues = updates;
 	}
 }
@@ -124,7 +126,7 @@ function initializeBle() {
 						.toLowerCase().endsWith('dd' + settings.bleCode)) {
 			noble.stopScanning();
 
-			console.log('Found treadmill name with code '
+			console.log('Found fitness machine name with code '
 					+ prettyPrintedBleCode()
 					+ ' and name '
 					+ settings.bleDeviceName);
@@ -154,7 +156,7 @@ function exploreSportsEquipment() {
 	
 	sportsEquipment.connect(function(error) {
 		if (error) {
-			console.log('Could not connect to treadmill:', error);
+			console.log('Could not connect to fitness machine:', error);
 			return;
 		}
 		
@@ -231,6 +233,7 @@ function readMaxAndMin() {
 			Constants.Characteristic.MaxPulse,
 			Constants.Characteristic.Metric
 		];
+		
 	request.writeAndRead(equipmentInformation, undefined, reads, tx, rx, function(data, error) {
 		if (error) {
 			console.log('Failed to read max and mins:', error);
@@ -256,6 +259,13 @@ function readCurrentValues() {
 			Constants.Characteristic.Pulse,
 			Constants.Characteristic.Mode,
 		];
+	
+	// Read powe and cadence when a bike
+	if(settings.bike) {
+		reads.push(Constants.Characteristic.CurrentPower);
+		reads.push(Constants.Characteristic.CurrentCadence);
+	}
+		
 	request.writeAndRead(equipmentInformation, updateValues, reads, tx, rx, function(data, error) {
 		if (error) {
 			if (error === 'disconnected') {
@@ -290,6 +300,10 @@ function readCurrentValues() {
 			changes[settings.metric ? 'kph' : 'mph'] = speed;
 			
 			changes['incline'] = safeParseFloat(data.CurrentIncline);
+			
+			// These only get transmitted if a bike
+			changes['cadence'] = safeParseFloat(data.CurrentCadence);
+			changes['power'] = safeParseFloat(data.CurrentPower);
 			
 			if (data.Pulse && (data.Pulse.source !== Constants.PulseSource.No)) {
 				changes['hr'] = data.Pulse.pulse;

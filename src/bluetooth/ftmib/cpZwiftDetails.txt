@@ -1,0 +1,42 @@
+onWriteRequest data: 00, 0, false
+Size: 1
+onWriteRequest data: 07, 0, false
+Size: 1
+onWriteRequest data: 110000a4002833, 0, false
+Size: 7
+onWriteRequest data: 110000a4002833, 0, false
+
+
+
+size 1
+data 0x00 		= Request Control 
+RESPONSE = 	0x80 (Response Code Op Code) 
+			0x00 (Request Op Code) 
+			0x01 (Success)
+
+size 1
+data 0x07 		= Start or Resume
+RESPONSE = 	0x80 (Response Code Op Code) 
+			0x07 (Request Op Code) 
+			0x01 (Success)
+
+size 7
+data 0x11 		= Set Indoor Bike Simulation Parameters
+data 0x00 0x00	= Wind Speed; Meters Per Second; 0.001; SINT16
+data 0xa4 0x00 	= Grade; %; 0.01; SINT16
+data 0x28 		= Coefficient of Rolling Resistance; unitless; 0.0001; UINT8
+data 0x33		= Wind Resistance Coefficient; kg/m; 0.01; UINT8;
+RESPONSE = 	0x80 (Response Code Op Code) 
+			0x11 (Request Op Code) 
+			0x01 (Success)
+			
+			
+
+https://forum.bikeradar.com/discussion/13010332/headwinds-equivalent-gradient
+Headwind to incline, signed int for tail wind control as well
+10 mph = 3.33%
+20 mph = 6.67%
+30 mph = 10%
+40 mph = 13.34%
+50 mph = 16.67%
+60 mph = 20%
