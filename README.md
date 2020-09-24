@@ -172,6 +172,10 @@ The app runs a local web server that displays information from your treadmill, a
 
 If you have a monitor or touch screen connected to your Pi, you can run it in Kiosk mode. It can launch the Zwifit UI automatically. Follow the steps in this article to get started: https://pimylifeup.com/raspberry-pi-kiosk/
 
+## Set the incline according to your current Zwift session
+
+Zwift does not send the current gain of your running session to the treadmill. However, you can use the software [zwifit-incline-tracker](https://github.com/RasPelikan/zwifit-incline-tracker) to achieve this regardless. These automatic updates are only processed if the treadmill is in the active status.
+
 ## Contributing
 
 Pull requests are welcome! Do your best to emulate the code around what you are editing.
