@@ -249,8 +249,8 @@ function readMaxAndMin() {
 }
 
 function readCurrentValues() {
-	
 	const reads = [
+			Constants.Characteristic.Kph,
 			Constants.Characteristic.CurrentKph,
 			Constants.Characteristic.CurrentIncline,
 			Constants.Characteristic.Pulse,
@@ -267,16 +267,20 @@ function readCurrentValues() {
 			updateValues = undefined;
 			
 			current.mode = data.Mode;
-			
 			const changes = {};
-			let speed;
+			let currentSpeed;
+			let configuredSpeed;
 			if (equipmentInformation.Metric === settings.metric) {
-				speed = safeParseFloat(data.CurrentKph);
+				currentspeed = safeParseFloat(data.CurrentKph);
+				configuredSpeed = safeParseFloat(data.Kph);
 			} else if (equipmentInformation.Metric) {
-				speed = safeParseFloat(data.CurrentKph) * 0.621;
+				currentspeed = safeParseFloat(data.CurrentKph) * 0.621;
+				configuredSpeed = safeParseFloat(data.Kph) * 0.621;
 			} else {
-				speed = safeParseFloat(data.CurrentKph) / 0.621;
+				currentspeed = safeParseFloat(data.CurrentKph) / 0.621;
+				configuredSpeed = safeParseFloat(data.Kph) * 0.621;
 			}
+			let speed = !currentSpeed || currentSpeed === 0 ? configuredSpeed : currentSpeed;
 			if (speed < 0.1) {
 				speed = 0;
 			} else {

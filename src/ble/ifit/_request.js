@@ -644,17 +644,19 @@ function writeRequestAndGatherResponse(request, tx, rx, callback) {
 			const { error } = fillResponse(response.buffer, response.upcomingMessages, message);
 			error && reportError(error);
 			rx.removeListener('read', listener);
-			if (response.buffer.length > 5) {
-				let checksum = 0;
-				for (let i = 4; i < response.buffer.length - 1; ++i) {
-					checksum += response.buffer[i];
+			if(response && response.buffer) {
+				if (response.buffer.length > 5) {
+					let checksum = 0;
+					for (let i = 4; i < response.buffer.length - 1; ++i) {
+						checksum += response.buffer[i];
+					}
+					checksum = checksum & 255;
+					if (checksum !== response.buffer[response.buffer.length - 1]) {
+						reportError('checksum invalid');
+					}
 				}
-				checksum = checksum & 255;
-				if (checksum !== response.buffer[response.buffer.length - 1]) {
-					reportError('checksum invalid');
-				}
+				callback(response.buffer, null, raw);
 			}
-			callback(response.buffer, null, raw);
 		} else {
 			const { error } = fillResponse(response.buffer, response.upcomingMessages, message);
 			error && reportError(error);
