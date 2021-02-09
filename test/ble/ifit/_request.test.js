@@ -105,7 +105,7 @@ test('parseEquipmentInformationResponse', () => {
 	
 	const result = parseEquipmentInformationResponse(
 			Buffer.from('0104021c041c810250010000000000000ed3fefbdbfcfb3b0ce71f00c0d3189b', 'hex'));
-	expect(Object.keys(result.characteristics).length).toBe(24);
+	expect(Object.keys(result.characteristics).length).toBe(29);
 	
 });
 
