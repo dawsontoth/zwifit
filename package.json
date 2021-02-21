@@ -22,7 +22,7 @@
     "local-devices": "^2.0.0",
     "noble": "npm:@abandonware/noble@^1.9.2-8",
     "readline-utils": "^2.2.3",
-    "socket.io": "^2.2.0",
+    "socket.io": "^2.4.0",
     "websocket": "^1.0.28"
   },
   "devDependencies": {
