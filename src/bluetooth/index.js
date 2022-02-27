@@ -96,7 +96,7 @@ function onAccepted(clientAddress) {
 
 function onDisconnected(clientAddress) {
 	if (current.clients.indexOf(clientAddress) >= 0) {
-		console.log("Disconnceted from Zwift", clientAddress);
+		console.log("Disconnected from Zwift", clientAddress);
 		current.clients.splice(current.clients.indexOf(clientAddress), 1);
 	}
 }
