@@ -160,7 +160,7 @@ function emitUpdates() {
 			power: power,
 			incline: incline
 		}));
-		
+
 		// The gradient is updated automatically every UPDATE_GRADE_MS, also update if the
 		// grade changes by more than UPDATE_GRADE_PER
 		if(Math.abs(ftmibService.controlpoint.getSimulatedGrade()-grade) >= UPDATE_GRADE_PER) {
@@ -172,9 +172,11 @@ function emitUpdates() {
 
 function updateGradient() {
 	if (process.env.DEBUG) console.log('Update grade '+ftmibService.controlpoint.getSimulatedGrade()+'%; old '+grade);
-	grade = ftmibService.controlpoint.getSimulatedGrade();
-	let message = {'simGrade' : grade};
-	events.fire('controlRequested', message);
+	if (ftmibService && ftmibService.controlpoint.getSimulatedGrade) {
+		grade = ftmibService.controlpoint.getSimulatedGrade();
+		let message = {'simGrade' : grade};
+		events.fire('controlRequested', message);
+	}
 }
 
 function calculateTimeAndDistance() {
