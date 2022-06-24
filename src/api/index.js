@@ -46,8 +46,13 @@ exports.start = (bluetooth, ifit) => {
 	// 	1000
 	// );
 	events.on('changeReceived', changes => {
-		io.emit('message', { event: 'change', data: changes });
-		io.emit('message', { event: 'current', data: current });
+		// Wait 50 milliseconds for the *.current values to update
+		setTimeout(()=>{
+			// Give the website the *new* current data, rather than the *old* "current" data (which is no longer current)
+			let new_current = { bluetooth: bluetooth.current, ifit: ifit.current };
+			io.emit('message', { event: 'change', data: changes });
+			io.emit('message', { event: 'current', data: new_current });
+		}, 50);
 	});
 
 	let port = 1337;
